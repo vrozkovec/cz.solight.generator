@@ -5,8 +5,8 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Generátor PDF nabídek</h3>
+                    <div class="card-header text-bg-dark">
+                        <h3 class="m-0 p-0">Generátor PDF nabídek</h3>
                     </div>
                     <div class="card-body">
 
@@ -15,9 +15,6 @@
                             <div class="form-group mb-3">
                                 <label for="fileInput" class="form-label">Vyberte XML soubor:</label>
                                 <input wicket:id="fileInput" type="file" class="form-control" id="fileInput" accept=".xml"/>
-                                <small class="form-text text-muted">
-                                    Nahrajte XML soubor exportu nabídky.
-                                </small>
                             </div>
 
                             <!-- Locale selection -->
@@ -59,7 +56,7 @@
                                 </div>
                             </div>
 
-                            <button wicket:id="uploadButton" type="submit" class="btn btn-primary mt-3">
+                            <button wicket:id="uploadButton" type="submit" class="btn w-100 btn-outline-primary mt-3">
                                 <i class="fas fa-file-pdf"></i> Vygenerovat PDF
                             </button>
                         </form>
