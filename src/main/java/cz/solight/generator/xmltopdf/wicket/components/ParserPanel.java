@@ -66,8 +66,6 @@ public class ParserPanel extends Panel
 	public ParserPanel(String id)
 	{
 		super(id);
-		System.err.println(xmlOfferParser);
-		System.err.println(xmlOfferParser);
 	}
 
 	@Override
@@ -84,13 +82,6 @@ public class ParserPanel extends Panel
 		// Add file upload field
 		fileUploadField = new FileUploadField("fileInput");
 		uploadForm.add(fileUploadField);
-
-		// Add locale selector dropdown
-		// var localeDropdown = new DropDownChoice<>("locale", localeModel,
-		// List.of(PdfLocale.values()),
-		// new EnumChoiceRenderer<>(this));
-		// localeDropdown.setRequired(true);
-		// uploadForm.add(localeDropdown);
 
 		uploadForm.add(new ButtonGroup("locale")
 		{
