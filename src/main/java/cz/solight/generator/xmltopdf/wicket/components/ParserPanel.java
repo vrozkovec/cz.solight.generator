@@ -1,22 +1,27 @@
 package cz.solight.generator.xmltopdf.wicket.components;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.AjaxDownloadBehavior;
 import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.request.http.WebResponse.CacheScope;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.util.lang.Bytes;
-import org.apache.wicket.util.resource.FileResourceStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +61,8 @@ public class ParserPanel extends Panel
 	private Model<Boolean> showPriceVOCModel = Model.of(true);
 	private Model<Boolean> showPriceMOCModel = Model.of(true);
 	private Model<PdfLocale> localeModel = Model.of(PdfLocale.CZ);
+	private Path generatedPdfPath;
+	private AjaxDownloadBehavior pdfDownload;
 
 	/**
 	 * Constructor for ParserPanel.
@@ -72,6 +79,45 @@ public class ParserPanel extends Panel
 	protected void onInitialize()
 	{
 		super.onInitialize();
+
+		// Create AjaxDownloadBehavior for inline PDF display in new tab
+		pdfDownload = new AjaxDownloadBehavior(new AbstractResource()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected ResourceResponse newResourceResponse(Attributes attributes)
+			{
+				var response = new ResourceResponse();
+				response.setLastModified(Instant.now());
+				response.setCacheDuration(Duration.ZERO);
+				response.setCacheScope(CacheScope.PRIVATE);
+				response.setFileName(generatedPdfPath.getFileName().toString());
+				response.setContentDisposition(ContentDisposition.INLINE);
+				response.setContentType("application/pdf");
+
+				try
+				{
+					byte[] pdfData = FileUtils.readFileToByteArray(generatedPdfPath.toFile());
+					response.setWriteCallback(new WriteCallback()
+					{
+						@Override
+						public void writeData(Attributes attributes)
+						{
+							attributes.getResponse().write(pdfData);
+						}
+					});
+				}
+				catch (IOException e)
+				{
+					LOG.error("Error reading PDF file for download", e);
+					response.setError(404);
+				}
+				return response;
+			}
+		}).setLocation(AjaxDownloadBehavior.Location.NewWindow);
+
+		add(pdfDownload);
 
 		// Create upload form
 		var uploadForm = new Form<Void>("uploadForm");
@@ -209,32 +255,14 @@ public class ParserPanel extends Panel
 			LOG.info("PDF generated successfully: {}", outputPath);
 			info("PDF soubor byl úspěšně vygenerován");
 
-			// Trigger download
-			downloadPdf(outputPath, pdfFileName);
+			// Store path and trigger inline display in new tab
+			generatedPdfPath = outputPath;
+			pdfDownload.initiate(target);
 		}
 		catch (Exception e)
 		{
 			LOG.error("Error processing file", e);
 			error("Chyba při zpracování souboru: " + e.getMessage());
 		}
-	}
-
-	/**
-	 * Triggers the download of the generated PDF file.
-	 *
-	 * @param pdfPath
-	 *            the path to the PDF file
-	 * @param fileName
-	 *            the download filename
-	 */
-	private void downloadPdf(Path pdfPath, String fileName)
-	{
-		var file = pdfPath.toFile();
-		var resourceStream = new FileResourceStream(file);
-
-		var handler = new ResourceStreamRequestHandler(resourceStream, fileName);
-		handler.setContentDisposition(ContentDisposition.ATTACHMENT);
-
-		getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
 	}
 }
