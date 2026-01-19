@@ -10,7 +10,7 @@ lan:
     vm_ip: 192.168.0.100
    
 java:
-   startupMemory: 512M
+   startupMemory: 256M
    maxMemory: 1G
    additionalStartupParams:
    executable: /usr/lib/jvm/temurin-17-jdk-amd64/bin/java
