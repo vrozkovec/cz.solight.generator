@@ -1,6 +1,7 @@
 package cz.solight.generator.xmltopdf.wicket.app;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.markup.head.filter.JavaScriptFilteredIntoFooterHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -50,8 +51,11 @@ public class PdfGeneratorApplication extends WebApplication
 	{
 		super.init();
 
+
 		// Initialize Guice
 		injector = Guice.createInjector(new GeneratorModule());
+
+		getComponentInstantiationListeners().add(new GuiceComponentInjector(this, injector));
 
 		getCspSettings().blocking().disabled();
 

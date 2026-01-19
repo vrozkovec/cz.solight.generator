@@ -1,0 +1,7 @@
+app:
+   baseUrl: http://localhost:8080
+   directories:
+      local:
+         projectBase: /speedy/dev/cz.solight.generator
+files:
+   domain: http://local.files.ukol.svetit.cz/

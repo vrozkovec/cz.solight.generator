@@ -6,21 +6,64 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Generátor PDF</h3>
+                        <h3>Generátor PDF nabídek</h3>
                     </div>
                     <div class="card-body">
-                        
+
                         <!-- Upload form -->
                         <form wicket:id="uploadForm" class="mb-4">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="fileInput" class="form-label">Vyberte XML soubor:</label>
                                 <input wicket:id="fileInput" type="file" class="form-control" id="fileInput" accept=".xml"/>
                                 <small class="form-text text-muted">
-                                    Nahrajte XML soubor obsahující ceník.
+                                    Nahrajte XML soubor exportu nabídky.
                                 </small>
                             </div>
+
+                            <!-- Locale selection -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <strong>Jazyková verze</strong>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                    <div wicket:id="locale"></div>
+<!--                                         <select wicket:id="locale" class="form-select"> -->
+<!--                                             <option>CZ</option> -->
+<!--                                         </select> -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Price display options -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <strong>Zobrazení cen v PDF</strong>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        <input wicket:id="showPriceMy" type="checkbox" class="form-check-input" id="showPriceMy"/>
+                                        <label class="form-check-label" for="showPriceMy">
+                                            Zobrazit Vaši cenu
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input wicket:id="showPriceVOC" type="checkbox" class="form-check-input" id="showPriceVOC"/>
+                                        <label class="form-check-label" for="showPriceVOC">
+                                            Zobrazit VOC
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input wicket:id="showPriceMOC" type="checkbox" class="form-check-input" id="showPriceMOC"/>
+                                        <label class="form-check-label" for="showPriceMOC">
+                                            Zobrazit MOC
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button wicket:id="uploadButton" type="submit" class="btn btn-primary mt-3">
-                                <i class="fas fa-upload"></i> Nahrát a zpracovat
+                                <i class="fas fa-file-pdf"></i> Vygenerovat PDF
                             </button>
                         </form>
                     </div>

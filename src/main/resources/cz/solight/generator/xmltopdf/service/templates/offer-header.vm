@@ -1,0 +1,6 @@
+## Repeating header template for Playwright PDF generation
+## All styles must be inline - header/footer templates are rendered in isolation
+## Images must be base64 encoded - Playwright doesn't load external images in header/footer
+<div style="width: 100%; height: 100px; padding: 25px 0 0 80px; font-size: 10px; -webkit-print-color-adjust: exact; box-sizing: border-box;">
+    <img src="${logoBase64}" style="width: 220px; height: auto;"/>
+</div>
