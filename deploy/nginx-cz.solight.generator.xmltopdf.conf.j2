@@ -1,0 +1,151 @@
+proxy_cache_path /data/webapps/www_internal/{{ branchVars.filesFolder }}/cache levels=1:2 keys_zone={{ branchVars.nginx.cacheIdentifier }}:10m max_size=1G;
+
+server {
+        listen   80;
+        server_name {{ branchVars.domains.main }} jidelnicek.apertostudent.cz jidelnilistek.apertostudent.cz;
+        charset utf-8;
+
+        include /srv/webutils/nginx-conf/letsencrypt-acme.conf;
+
+        location / {
+    		return 302 https://{{ branchVars.domains.main }}$request_uri;
+        }
+}
+
+{% if sslCertificatePresent %}
+
+server {
+        server_name {{ branchVars.domains.main }};
+
+        charset utf-8;
+        
+		access_log /data/log/nginx/{{ branchVars.domains.main.split('.') | reverse | join('.') }}.ssl.access.log goaccess;
+
+        ssl_certificate         /srv/webutils/letsencrypt/certs/{{ branchVars.domains.ssl }}/fullchain.pem;
+        ssl_certificate_key     /srv/webutils/letsencrypt/certs/{{ branchVars.domains.ssl }}/privkey.pem;
+        ssl_trusted_certificate /srv/webutils/letsencrypt/certs/{{ branchVars.domains.ssl }}/fullchain.pem;
+        include /srv/webutils/nginx-conf/ssl.conf;
+
+        #Problems with REST API when using Nginx as reverse proxy
+        #http://www.gooddevs.com/rest-api-nginx-proxy-problem/
+        underscores_in_headers on;
+
+		location = /favicon.ico {
+        	log_not_found off;
+			access_log off;
+		}
+
+
+        location / {
+		    include /srv/webutils/nginx-conf/proxy.conf;
+		    
+           	auth_basic "Restricted Access";
+   			auth_basic_user_file /data/private/nginx/.htpasswd-kusala-surveys;		    
+		    
+		    client_max_body_size 108M;
+		    
+		    proxy_cookie_path / /;
+		    
+		    proxy_pass http://127.0.0.1:{{ currentPort }}/;
+
+		    proxy_connect_timeout      1200;
+		    proxy_send_timeout         1200;
+		    proxy_read_timeout         1200;
+		    send_timeout               1200;
+        }
+
+}
+{% endif %}
+
+
+server {
+    listen 80;
+    server_name {{ branchVars.domains.files }};
+    charset utf-8;
+	include /srv/webutils/nginx-conf/letsencrypt-acme.conf;
+
+	location / {
+		return 302 https://{{ branchVars.domains.files }}$request_uri;
+	}
+}
+
+{% if sslCertificatePresent %}
+server {
+    server_name {{ branchVars.domains.files }};
+
+    charset utf-8;
+    
+    access_log /data/log/nginx/{{ branchVars.domains.files.split('.') | reverse | join('.') }}.ssl.access.log goaccess;
+    
+    ssl_certificate         /srv/webutils/letsencrypt/certs/{{ branchVars.domains.ssl }}/fullchain.pem;
+    ssl_certificate_key     /srv/webutils/letsencrypt/certs/{{ branchVars.domains.ssl }}/privkey.pem;
+    ssl_trusted_certificate /srv/webutils/letsencrypt/certs/{{ branchVars.domains.ssl }}/fullchain.pem;
+    include /srv/webutils/nginx-conf/ssl.conf;
+
+    root /data/webapps/www/{{ branchVars.filesFolder }};
+    
+    location ~* ^/img/(resize|crop)/ {
+        resolver 8.8.8.8;
+        proxy_pass http://{{ branchVars.domains.imagesProxy }}$request_uri;
+        proxy_cache {{ branchVars.nginx.cacheIdentifier }};
+        proxy_cache_key "$host$document_uri";
+        proxy_cache_valid 200 1d;
+        proxy_cache_valid any 1m;
+        proxy_cache_use_stale error timeout invalid_header updating;
+    }
+
+}
+{% endif %}
+
+
+# And a second "server", which will be resize and crop
+server {
+    listen 80;
+    server_name {{ branchVars.domains.imagesProxy }};
+ 	
+ 	include /srv/webutils/nginx-conf/letsencrypt-acme.conf;
+ 	
+    root /data/webapps/www/{{ branchVars.filesFolder }};
+    index index.php index.html index.htm;
+
+    location = /favicon.ico {
+        log_not_found off;
+        access_log off;
+    }
+
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+
+    location / {
+        # This is cool because no php is touched for static content.
+        # include the "?$args" part so non-default permalinks doesn't break when using query string
+        try_files $uri $uri/;
+        proxy_read_timeout 300;
+    }
+
+
+    #Mint images
+    location ~* ^/img/resize/([\d\-]+)/([\d\-]+)/(.+)$ {
+        alias /data/webapps/www/{{ branchVars.filesFolder }}/$3;
+        image_filter resize $1 $2;
+        image_filter_buffer 108M;
+        image_filter_jpeg_quality 90;
+        error_page 415 = /empty;
+    }
+
+    location ~* ^/img/crop/([\d\-]+)/([\d\-]+)/(.+)$ {
+        alias /data/webapps/www/{{ branchVars.filesFolder }}/$3;
+        image_filter crop $1 $2;
+        image_filter_buffer 108M;
+        image_filter_jpeg_quality 90;
+        error_page 415 = /empty;
+    }
+
+
+    location = /empty {
+        empty_gif;
+    }
+}

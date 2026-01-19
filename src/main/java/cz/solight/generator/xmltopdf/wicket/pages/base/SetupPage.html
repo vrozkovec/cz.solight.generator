@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<title>Solight - PDF generátor <span wicket:id="titleEnclosure"> :: <span wicket:id="title"></span>
+</span></title>
+<meta name="description" content="Solight - PDF generátor" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- Open Graph / WhatsApp meta tags for social sharing -->
+<meta property="og:title" content="Solight - PDF generátor" />
+<meta property="og:description" content="Solight - PDF generátor" />
+<meta property="og:type" content="website" />
+
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-title" content="Solight - PDF generátor">
+<meta name="application-name" content="Solight - PDF generátor">
+</head>
+<body wicket:id="body" class="d-flex flex-column min-vh-100" style="padding-top: 60px;">
+	<header>
+		<nav wicket:id="navbar"></nav>
+	</header>
+	<!-- Your main content wrapper -->
+	<main class="flex-shrink-0">
+		<div class="container" wicket:id="container">
+			<div wicket:id="topfeedback"></div>
+			<wicket:child />
+		</div>
+	</main>
+	
+	<div wicket:id="footer-container"></div>
+</body>
+</html>

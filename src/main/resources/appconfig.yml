@@ -1,0 +1,25 @@
+app:
+   identifier: generator-solight-cz
+   # base url to the application
+   baseUrl: https://generator.solight.cz/  
+   emailFrom:
+      # default sender address if no address is set
+      address: noreply@generator.solight.cz 
+      # default sender name if no name is set
+      name: Solight PDF generátor
+   directories:
+      common:
+         # temporary folder used for pdf generation, for example 
+         temp: /data/tmp
+      local:
+         # in local development, this is absolute path to the project, not used in production
+         projectBase: 
+files:
+   folder:
+      # folder that is accessible to the interned via nginx
+      public: /data/webapps/www/cz.solight.generator
+      # folder that is inaccessible to the interned and is used for storing sensitive app information
+      private: /data/webapps/www_internal/cz.solight.generator
+   # files from public folder are accessible under this address
+   # this domain has also nginx image resizer filter enabled
+   domain: http://files.generator.solight.cz/

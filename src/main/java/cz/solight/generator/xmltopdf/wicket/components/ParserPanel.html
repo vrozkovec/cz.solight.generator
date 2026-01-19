@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<wicket:panel>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Generátor PDF</h3>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Upload form -->
+                        <form wicket:id="uploadForm" class="mb-4">
+                            <div class="form-group">
+                                <label for="fileInput" class="form-label">Vyberte XML soubor:</label>
+                                <input wicket:id="fileInput" type="file" class="form-control" id="fileInput" accept=".xml"/>
+                                <small class="form-text text-muted">
+                                    Nahrajte XML soubor obsahující ceník.
+                                </small>
+                            </div>
+                            <button wicket:id="uploadButton" type="submit" class="btn btn-primary mt-3">
+                                <i class="fas fa-upload"></i> Nahrát a zpracovat
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</wicket:panel>
+</html>

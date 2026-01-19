@@ -1,0 +1,27 @@
+---
+# all variables here are accesible in the template under the 'branchVars' variable
+# so for example redis.port becomes branchVars.redis.port
+
+redis:     
+   port: 6556
+   skipConfigCreation: true
+
+lan:
+    vm_ip: 192.168.0.100
+   
+java:
+   startupMemory: 512M
+   maxMemory: 1G
+   additionalStartupParams:
+   executable: /usr/lib/jvm/temurin-17-jdk-amd64/bin/java
+   
+domains:   
+   main: generator.solight.cz
+   ssl: generator.solight.cz
+   files: files.generator.solight.cz
+   imagesProxy: images.generator.solight.cz
+   
+filesFolder: cz.solight.generator
+
+nginx:
+   cacheIdentifier: SolightGeneratorCache
