@@ -39,9 +39,6 @@ server {
         location / {
 		    include /srv/webutils/nginx-conf/proxy.conf;
 		    
-           	auth_basic "Restricted Access";
-   			auth_basic_user_file /data/private/nginx/.htpasswd-kusala-surveys;		    
-		    
 		    client_max_body_size 108M;
 		    
 		    proxy_cookie_path / /;
