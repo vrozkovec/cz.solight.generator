@@ -1,5 +1,6 @@
 package cz.solight.generator.xmltopdf.wicket.components;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,8 +62,8 @@ public class ParserPanel extends Panel
 	private Model<Boolean> showPriceVOCModel = Model.of(true);
 	private Model<Boolean> showPriceMOCModel = Model.of(true);
 	private Model<PdfLocale> localeModel = Model.of(PdfLocale.CZ);
-	private Path generatedPdfPath;
 	private AjaxDownloadBehavior pdfDownload;
+	private String generatedPdfPath;
 
 	/**
 	 * Constructor for ParserPanel.
@@ -88,17 +89,18 @@ public class ParserPanel extends Panel
 			@Override
 			protected ResourceResponse newResourceResponse(Attributes attributes)
 			{
+				var file = new File(generatedPdfPath);
 				var response = new ResourceResponse();
 				response.setLastModified(Instant.now());
 				response.setCacheDuration(Duration.ZERO);
 				response.setCacheScope(CacheScope.PRIVATE);
-				response.setFileName(generatedPdfPath.getFileName().toString());
+				response.setFileName(file.getName());
 				response.setContentDisposition(ContentDisposition.INLINE);
 				response.setContentType("application/pdf");
 
 				try
 				{
-					byte[] pdfData = FileUtils.readFileToByteArray(generatedPdfPath.toFile());
+					byte[] pdfData = FileUtils.readFileToByteArray(file);
 					response.setWriteCallback(new WriteCallback()
 					{
 						@Override
@@ -256,7 +258,7 @@ public class ParserPanel extends Panel
 			info("PDF soubor byl úspěšně vygenerován");
 
 			// Store path and trigger inline display in new tab
-			generatedPdfPath = outputPath;
+			generatedPdfPath = outputPath.toFile().getAbsolutePath();
 			pdfDownload.initiate(target);
 		}
 		catch (Exception e)
