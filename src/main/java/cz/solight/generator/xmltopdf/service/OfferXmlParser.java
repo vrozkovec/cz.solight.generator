@@ -42,9 +42,9 @@ import jakarta.inject.Inject;
  * Service for parsing XML offer files into {@link IssuedOffer} objects. Handles Windows-1250
  * encoding and HTML entity decoding.
  */
-public class XmlOfferParser
+public class OfferXmlParser
 {
-	private static final Logger LOG = LoggerFactory.getLogger(XmlOfferParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(OfferXmlParser.class);
 	private static final DateTimeFormatter XML_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	@Inject
@@ -53,7 +53,7 @@ public class XmlOfferParser
 	/**
 	 * Construct.
 	 */
-	public XmlOfferParser()
+	public OfferXmlParser()
 	{
 		super();
 	}

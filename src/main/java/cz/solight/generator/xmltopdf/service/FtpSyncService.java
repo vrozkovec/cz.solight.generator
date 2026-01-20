@@ -260,13 +260,20 @@ public class FtpSyncService
 		try
 		{
 			// Call processor with callback that collects output files
-			fileProcessor.accept(xmlFile, outputFiles::add);
-
-			// Upload each generated output file
-			for (File outputFile : outputFiles)
-			{
-				uploadFile(sftpChannel, outputFile, uploadDirectory);
-			}
+			fileProcessor.accept(xmlFile, pdf -> {
+				uploadFile(sftpChannel, pdf, uploadDirectory);
+				outputFiles.add(pdf);
+				try
+				{
+					LOG.info("Deleting PDF file after upload: {}", pdf);
+					Files.delete(pdf.toPath());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					pdf.deleteOnExit();
+				}
+			});
 
 			LOG.info("Processed {} and uploaded {} output files", xmlFile.getName(), outputFiles.size());
 		}

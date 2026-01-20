@@ -44,8 +44,7 @@ public class JobDailyInTheMorning extends WicketAppBoundJob<PdfGeneratorApplicat
 		throws JobExecutionException
 	{
 		JobAction action = new JobAction();
-
-
+		JobOneTime.uploadConvertedProductSheets(action);
 	}
 
 }

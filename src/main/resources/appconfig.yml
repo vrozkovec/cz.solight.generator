@@ -32,3 +32,6 @@ sftp:
    credentialsFile: /data/private/app-secrets/ftp.solight.cz
    downloadDirectory: /XML
    uploadDirectory: "/Produktove listy"
+   
+gotenberg:
+   url: http://localhost:3000

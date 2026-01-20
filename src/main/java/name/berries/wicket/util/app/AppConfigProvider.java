@@ -217,6 +217,9 @@ public class AppConfigProvider
 		public static final String APP_DIRECTORIES_LOCAL_PROJECT_BASE = "app.directories.local.projectBase";
 		public static final String APP_DIRECTORIES_LOCAL_FLYWAY_MIGRATIONS_PARENT_DIR = "app.directories.local.flywayMigrationsParentDir";
 
+		/** Gotenberg server URL for PDF generation. */
+		public static final String GOTENBERG_URL = "gotenberg.url";
+
 		private ConfigKey()
 		{
 		}

@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 import cz.solight.generator.xmltopdf.pojo.PdfDisplayOptions;
 import cz.solight.generator.xmltopdf.pojo.PdfLocale;
 import cz.solight.generator.xmltopdf.service.OfferPdfGenerator;
-import cz.solight.generator.xmltopdf.service.XmlOfferParser;
+import cz.solight.generator.xmltopdf.service.OfferXmlParser;
 
 import name.berries.wicket.components.YesNoCheckBox;
 import name.berries.wicket.notifications.AjaxNotificationPanel;
@@ -52,7 +52,7 @@ public class ParserPanel extends Panel
 	private static final String PDF_OUTPUT_DIR = "/data/tmp/";
 
 	@Inject
-	private XmlOfferParser xmlOfferParser;
+	private OfferXmlParser xmlOfferParser;
 
 	@Inject
 	private OfferPdfGenerator offerPdfGenerator;

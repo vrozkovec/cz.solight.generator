@@ -9,7 +9,9 @@ import com.google.inject.Singleton;
 import cz.solight.generator.xmltopdf.service.FtpSyncService;
 import cz.solight.generator.xmltopdf.service.ImagePathConverter;
 import cz.solight.generator.xmltopdf.service.OfferPdfGenerator;
-import cz.solight.generator.xmltopdf.service.XmlOfferParser;
+import cz.solight.generator.xmltopdf.service.OfferXmlParser;
+import cz.solight.generator.xmltopdf.service.ProductSheetPdfGenerator;
+import cz.solight.generator.xmltopdf.service.ProductSheetXmlParser;
 
 import name.berries.pdf.PdfGeneratorService;
 
@@ -26,9 +28,13 @@ public class GeneratorModule extends AbstractModule
 	{
 		LOG.info("Configuring GeneratorModule bindings");
 		bind(ImagePathConverter.class).in(Singleton.class);
-		bind(XmlOfferParser.class).in(Singleton.class);
 		bind(PdfGeneratorService.class).in(Singleton.class);
-		bind(OfferPdfGenerator.class).in(Singleton.class);
 		bind(FtpSyncService.class).in(Singleton.class);
+
+		bind(OfferXmlParser.class).in(Singleton.class);
+		bind(OfferPdfGenerator.class).in(Singleton.class);
+
+		bind(ProductSheetPdfGenerator.class).in(Singleton.class);
+		bind(ProductSheetXmlParser.class).in(Singleton.class);
 	}
 }

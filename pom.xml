@@ -93,6 +93,34 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-java-bom</artifactId>
+			<version>${unirest.version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-java-core</artifactId>
+			<version>${unirest.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-modules-jackson</artifactId>
+			<version>${unirest.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-modules-gson</artifactId>
+			<version>${unirest.version}</version>
+		</dependency>
+
+
 		<!-- SFTP client (maintained JSch fork) -->
 		<dependency>
 			<groupId>com.github.mwiede</groupId>

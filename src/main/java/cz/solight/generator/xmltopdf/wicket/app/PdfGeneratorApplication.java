@@ -59,6 +59,7 @@ public class PdfGeneratorApplication extends WebApplication
 		injector = Guice.createInjector(new GeneratorModule());
 		GuiceStaticHolder.setInjector(injector);
 
+		// TODO when tests are present, do not start scheduler
 		scheduler = new Scheduler();
 		scheduler.startScheduler(this);
 		LOG.info("Starting scheduler {}", scheduler);

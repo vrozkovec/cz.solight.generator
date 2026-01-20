@@ -16,11 +16,19 @@
  */
 package cz.solight.generator.xmltopdf.scheduler;
 
+import static name.berries.app.guice.GuiceStaticHolder.getInstance;
+
+import java.io.FileInputStream;
+
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.solight.generator.xmltopdf.service.FtpSyncService;
+import cz.solight.generator.xmltopdf.service.ProductSheetPdfGenerator;
+import cz.solight.generator.xmltopdf.service.ProductSheetXmlParser;
+import cz.solight.generator.xmltopdf.service.SftpConfig;
 import cz.solight.generator.xmltopdf.wicket.app.PdfGeneratorApplication;
 
 import name.berries.app.scheduler.WicketAppBoundJob;
@@ -44,7 +52,29 @@ public class JobOneTime extends WicketAppBoundJob<PdfGeneratorApplication>
 		throws JobExecutionException
 	{
 		JobAction action = new JobAction();
+		uploadConvertedProductSheets(action);
+	}
+
+	static void uploadConvertedProductSheets(JobAction action)
+	{
 		action.accept("Download XMLs from FTP, convert to PDF, upload back", () -> {
+
+			var ftp = getInstance(FtpSyncService.class);
+			ftp.syncXmlFiles(new SftpConfig(), (file, consumer) -> {
+				try
+				{
+					ProductSheetXmlParser sheetXmlParser = getInstance(ProductSheetXmlParser.class);
+					ProductSheetPdfGenerator sheetPdfGenerator = getInstance(ProductSheetPdfGenerator.class);
+
+					var products = sheetXmlParser.parse(new FileInputStream(file));
+					sheetPdfGenerator.generateAllPdfs(products, consumer);
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
+			});
+
 		});
 	}
 }
