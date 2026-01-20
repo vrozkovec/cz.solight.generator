@@ -207,6 +207,7 @@ public class AppConfigProvider
 		public static final String FILES_FOLDER_PRIVATE = "files.folder.private";
 		public static final String FILES_DOMAIN = "files.domain";
 		public static final String APP_BASE_URL = "app.baseUrl";
+		public static final String APP_BASE_IMAGES_URL = "app.baseImagesUrl";
 		public static final String APP_IDENTIFIER = "app.identifier";
 		public static final String APP_EMAILFROM_ADDRESS = "app.emailFrom.address";
 		public static final String APP_EMAILFROM_NAME = "app.emailFrom.name";

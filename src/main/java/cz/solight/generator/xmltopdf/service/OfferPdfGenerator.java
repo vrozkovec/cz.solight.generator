@@ -148,6 +148,7 @@ public class OfferPdfGenerator
 		context.put("tocOtherPageLimit", TOC_OTHER_PAGE_LIMIT);
 
 		context.put("baseUrl", AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.APP_BASE_URL));
+		context.put("baseImagesUrl", AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.APP_BASE_IMAGES_URL));
 
 		// Base64 encoded images for header/footer templates (Playwright doesn't load external
 		// images)

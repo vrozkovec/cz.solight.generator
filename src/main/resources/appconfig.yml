@@ -1,7 +1,8 @@
 app:
    identifier: generator-solight-cz
    # base url to the application
-   baseUrl: https://generator.solight.cz/  
+   baseUrl: https://generator.solight.cz
+   baseImagesUrl: https://obrazky.generator.solight.cz
    emailFrom:
       # default sender address if no address is set
       address: noreply@generator.solight.cz 

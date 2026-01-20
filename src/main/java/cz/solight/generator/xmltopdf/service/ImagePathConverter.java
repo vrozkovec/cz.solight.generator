@@ -24,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import name.berries.wicket.util.app.AppConfigProvider;
+import name.berries.wicket.util.app.AppConfigProvider.ConfigKey;
+
 /**
  * Utility for converting UNC image paths to HTTP URLs. Converts paths like
  * "\\webserver\storecards\1D31A.jpg" to HTTP URLs.
@@ -36,7 +39,8 @@ public class ImagePathConverter
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ImagePathConverter.class);
 	private static final String DEFAULT_UNC_PREFIX = "\\\\webserver\\storecards\\";
-	private static final String DEFAULT_HTTP_BASE_URL = "https://generator.solight.cz/obrazky/";
+	private static final String DEFAULT_HTTP_BASE_URL = AppConfigProvider.getDefaultConfiguration()
+		.getString(ConfigKey.APP_BASE_IMAGES_URL) + "/obrazky/";
 	private static final int CONNECTION_TIMEOUT_MS = 3000;
 
 	private final String uncPrefix;
