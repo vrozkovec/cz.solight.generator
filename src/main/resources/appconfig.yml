@@ -14,6 +14,7 @@ app:
       local:
          # in local development, this is absolute path to the project, not used in production
          projectBase: 
+
 files:
    folder:
       # folder that is accessible to the interned via nginx
@@ -23,3 +24,10 @@ files:
    # files from public folder are accessible under this address
    # this domain has also nginx image resizer filter enabled
    domain: http://files.generator.solight.cz/
+   
+sftp:
+   host: ftp.solight.cz
+   port: 22
+   credentialsFile: /data/private/app-secrets/ftp.solight.cz
+   downloadDirectory: /XML
+   uploadDirectory: "/Produktove listy"

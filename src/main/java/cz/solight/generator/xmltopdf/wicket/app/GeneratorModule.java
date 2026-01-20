@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
+import cz.solight.generator.xmltopdf.service.FtpSyncService;
 import cz.solight.generator.xmltopdf.service.ImagePathConverter;
 import cz.solight.generator.xmltopdf.service.OfferPdfGenerator;
 import cz.solight.generator.xmltopdf.service.XmlOfferParser;
@@ -28,5 +29,6 @@ public class GeneratorModule extends AbstractModule
 		bind(XmlOfferParser.class).in(Singleton.class);
 		bind(PdfGeneratorService.class).in(Singleton.class);
 		bind(OfferPdfGenerator.class).in(Singleton.class);
+		bind(FtpSyncService.class).in(Singleton.class);
 	}
 }
