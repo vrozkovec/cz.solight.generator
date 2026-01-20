@@ -15,7 +15,10 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import cz.solight.generator.xmltopdf.scheduler.Scheduler;
 import cz.solight.generator.xmltopdf.wicket.pages.HomePage;
+
+import name.berries.app.guice.GuiceStaticHolder;
 
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
@@ -34,6 +37,7 @@ public class PdfGeneratorApplication extends WebApplication
 	public static final String MOUNTPOINT_LOGOUT = "/odhlaseni";
 
 	private Injector injector;
+	private Scheduler scheduler;
 
 	/**
 	 * Construct.
@@ -51,9 +55,13 @@ public class PdfGeneratorApplication extends WebApplication
 	{
 		super.init();
 
-
 		// Initialize Guice
 		injector = Guice.createInjector(new GeneratorModule());
+		GuiceStaticHolder.setInjector(injector);
+
+		scheduler = new Scheduler();
+		scheduler.startScheduler(this);
+		LOG.info("Starting scheduler {}", scheduler);
 
 		getComponentInstantiationListeners().add(new GuiceComponentInjector(this, injector));
 
@@ -101,5 +109,16 @@ public class PdfGeneratorApplication extends WebApplication
 	public static PdfGeneratorApplication get()
 	{
 		return (PdfGeneratorApplication)Application.get();
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+
+		if (scheduler != null)
+			scheduler.stopScheduler();
+
+		GuiceStaticHolder.unset();
 	}
 }
