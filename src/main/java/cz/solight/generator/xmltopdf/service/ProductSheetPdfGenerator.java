@@ -151,6 +151,7 @@ public class ProductSheetPdfGenerator
 			}
 			catch (Exception e)
 			{
+				e.printStackTrace();
 				LOG.error("Failed to generate PDFs for product {}: {}", product.getCode(), e.getMessage());
 				failCount++;
 			}

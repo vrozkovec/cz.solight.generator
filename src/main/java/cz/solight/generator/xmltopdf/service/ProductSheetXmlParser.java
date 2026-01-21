@@ -40,6 +40,8 @@ import org.xml.sax.InputSource;
 import cz.solight.generator.xmltopdf.pojo.ProductSheet;
 import cz.solight.generator.xmltopdf.service.OfferXmlParser.XmlParseException;
 
+import jakarta.inject.Inject;
+
 /**
  * Service for parsing produktove_listy.xml catalog files into {@link ProductSheet} objects. Handles
  * UTF-16 BOM encoding and HTML entity decoding in Description fields.
@@ -47,6 +49,9 @@ import cz.solight.generator.xmltopdf.service.OfferXmlParser.XmlParseException;
 public class ProductSheetXmlParser
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ProductSheetXmlParser.class);
+
+	@Inject
+	private ImagePathConverter imagePathConverter;
 
 	/**
 	 * Parses an XML input stream into a list of ProductSheet objects.
@@ -69,10 +74,9 @@ public class ProductSheetXmlParser
 			LOG.info("Using charset: {}", charset);
 
 			// Wrap in BOMInputStream to skip BOM if present, explicitly include all common BOMs
-			var bomInputStream = BOMInputStream.builder()
-				.setInputStream(bufferedStream)
-				.setByteOrderMarks(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE,
-					ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+			var bomInputStream = BOMInputStream.builder().setInputStream(bufferedStream)
+				.setByteOrderMarks(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE,
+					ByteOrderMark.UTF_32BE)
 				.setInclude(false) // Skip the BOM
 				.get();
 
@@ -115,11 +119,8 @@ public class ProductSheetXmlParser
 		// Log first bytes for debugging
 		if (read >= 4)
 		{
-			LOG.info("First 4 bytes: {} {} {} {}",
-				String.format("%02X", bom[0] & 0xFF),
-				String.format("%02X", bom[1] & 0xFF),
-				String.format("%02X", bom[2] & 0xFF),
-				String.format("%02X", bom[3] & 0xFF));
+			LOG.info("First 4 bytes: {} {} {} {}", String.format("%02X", bom[0] & 0xFF), String.format("%02X", bom[1] & 0xFF),
+				String.format("%02X", bom[2] & 0xFF), String.format("%02X", bom[3] & 0xFF));
 		}
 
 		if (read >= 2)
@@ -190,8 +191,8 @@ public class ProductSheetXmlParser
 				}
 				else
 				{
-					LOG.info("Skipping invalid product at index {}: code='{}', name='{}' (missing required fields)",
-						i, product.getCode(), product.getName());
+					LOG.info("Skipping invalid product at index {}: code='{}', name='{}' (missing required fields)", i,
+						product.getCode(), product.getName());
 				}
 			}
 		}
@@ -225,9 +226,9 @@ public class ProductSheetXmlParser
 		product.setDescription(decodeHtmlEntities(rawDescription));
 
 		// Picture filenames (will be converted to URLs by the POJO)
-		product.setPicture1(getElementText(productElement, "PICTURE1"));
-		product.setPicture2(getElementText(productElement, "PICTURE2"));
-		product.setPicture3(getElementText(productElement, "PICTURE3"));
+		product.setPicture1Url(imagePathConverter.convertToUrl(getElementText(productElement, "PICTURE1")));
+		product.setPicture2Url(imagePathConverter.convertToUrl(getElementText(productElement, "PICTURE2")));
+		product.setPicture3Url(imagePathConverter.convertToUrl(getElementText(productElement, "PICTURE3")));
 
 		return product;
 	}

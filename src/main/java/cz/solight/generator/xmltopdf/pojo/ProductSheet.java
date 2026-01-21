@@ -24,8 +24,8 @@ import name.berries.wicket.util.app.AppConfigProvider;
 import name.berries.wicket.util.app.AppConfigProvider.ConfigKey;
 
 /**
- * Represents a product sheet from the produktove_listy.xml catalog.
- * Contains product details including code, name, brand, description, and images.
+ * Represents a product sheet from the produktove_listy.xml catalog. Contains product details
+ * including code, name, brand, description, and images.
  */
 public class ProductSheet implements Serializable
 {
@@ -42,9 +42,36 @@ public class ProductSheet implements Serializable
 	private int guaranteeLength;
 	private String productId;
 	private String description;
-	private String picture1;
-	private String picture2;
-	private String picture3;
+	private String picture1Url;
+	private String picture2Url;
+	private String picture3Url;
+
+
+	/**
+	 * Construct.
+	 */
+	public ProductSheet()
+	{
+		super();
+	}
+
+	// ***************************************************
+	// * UTILITY METHODS
+	// ***************************************************
+
+	/**
+	 * Checks if this product has valid data for PDF generation.
+	 *
+	 * @return true if the product has at least a code and name
+	 */
+	public boolean isValid()
+	{
+		return StringUtils.isNotBlank(code) && StringUtils.isNotBlank(name);
+	}
+
+	// ***************************************************
+	// * GETTERS / SETTERS
+	// ***************************************************
 
 	/**
 	 * Gets the product code.
@@ -250,121 +277,66 @@ public class ProductSheet implements Serializable
 	}
 
 	/**
-	 * Gets the primary picture filename.
+	 * Gets picture1Url.
 	 *
-	 * @return the picture filename
-	 */
-	public String getPicture1()
-	{
-		return picture1;
-	}
-
-	/**
-	 * Sets the primary picture filename.
-	 *
-	 * @param picture1
-	 *            the picture filename
-	 */
-	public void setPicture1(String picture1)
-	{
-		this.picture1 = picture1;
-	}
-
-	/**
-	 * Gets the secondary picture filename.
-	 *
-	 * @return the picture filename
-	 */
-	public String getPicture2()
-	{
-		return picture2;
-	}
-
-	/**
-	 * Sets the secondary picture filename.
-	 *
-	 * @param picture2
-	 *            the picture filename
-	 */
-	public void setPicture2(String picture2)
-	{
-		this.picture2 = picture2;
-	}
-
-	/**
-	 * Gets the tertiary picture filename.
-	 *
-	 * @return the picture filename
-	 */
-	public String getPicture3()
-	{
-		return picture3;
-	}
-
-	/**
-	 * Sets the tertiary picture filename.
-	 *
-	 * @param picture3
-	 *            the picture filename
-	 */
-	public void setPicture3(String picture3)
-	{
-		this.picture3 = picture3;
-	}
-
-	/**
-	 * Gets the full URL for the primary picture.
-	 *
-	 * @return the picture URL, or empty string if no picture
+	 * @return picture1Url
 	 */
 	public String getPicture1Url()
 	{
-		return buildPictureUrl(picture1);
+		return picture1Url;
 	}
 
 	/**
-	 * Gets the full URL for the secondary picture.
+	 * Sets picture1Url.
 	 *
-	 * @return the picture URL, or empty string if no picture
+	 * @param picture1Url
+	 *            picture1Url
+	 */
+	public void setPicture1Url(String picture1Url)
+	{
+		this.picture1Url = picture1Url;
+	}
+
+	/**
+	 * Gets picture2Url.
+	 *
+	 * @return picture2Url
 	 */
 	public String getPicture2Url()
 	{
-		return buildPictureUrl(picture2);
+		return picture2Url;
 	}
 
 	/**
-	 * Gets the full URL for the tertiary picture.
+	 * Sets picture2Url.
 	 *
-	 * @return the picture URL, or empty string if no picture
+	 * @param picture2Url
+	 *            picture2Url
+	 */
+	public void setPicture2Url(String picture2Url)
+	{
+		this.picture2Url = picture2Url;
+	}
+
+	/**
+	 * Gets picture3Url.
+	 *
+	 * @return picture3Url
 	 */
 	public String getPicture3Url()
 	{
-		return buildPictureUrl(picture3);
+		return picture3Url;
 	}
 
 	/**
-	 * Builds a full URL from a picture filename.
+	 * Sets picture3Url.
 	 *
-	 * @param filename
-	 *            the picture filename
-	 * @return the full URL, or empty string if filename is blank
+	 * @param picture3Url
+	 *            picture3Url
 	 */
-	private String buildPictureUrl(String filename)
+	public void setPicture3Url(String picture3Url)
 	{
-		if (StringUtils.isBlank(filename))
-		{
-			return "";
-		}
-		return BASE_IMAGES_URL + filename;
+		this.picture3Url = picture3Url;
 	}
 
-	/**
-	 * Checks if this product has valid data for PDF generation.
-	 *
-	 * @return true if the product has at least a code and name
-	 */
-	public boolean isValid()
-	{
-		return StringUtils.isNotBlank(code) && StringUtils.isNotBlank(name);
-	}
 }
