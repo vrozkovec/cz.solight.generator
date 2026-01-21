@@ -39,7 +39,7 @@ public class Scheduler extends SchedulerLocator
 	{
 		JobBuilder jobOneDayInTheMorning = newJob(JobDailyInTheMorning.class).withIdentity("JobDailyInTheMorning", "group1");
 		TriggerBuilder<CronTrigger> triggerOneDay = newTrigger().withIdentity("trigger.oneday", "group1")
-			.withSchedule(dailyAtHourAndMinute(01, 9)).startNow();
+			.withSchedule(dailyAtHourAndMinute(01, 4)).startNow();
 
 		addSchedule(jobOneDayInTheMorning, triggerOneDay);
 
