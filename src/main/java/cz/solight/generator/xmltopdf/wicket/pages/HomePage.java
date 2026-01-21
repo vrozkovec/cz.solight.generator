@@ -24,4 +24,26 @@ public class HomePage extends BasePage
 	{
 		return new ParserPanel(id);
 	}
+
+	// @Override
+	// protected void onInitialize()
+	// {
+	// super.onInitialize();
+	// var parsed = getInstance(ProductSheetXmlParser.class)
+	// .parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
+	// try
+	// {
+	// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
+	// ProductSheetFormat.A4_SHORT,
+	// Path.of("/data/tmp/psa4.pdf"));
+	// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
+	// ProductSheetFormat.FULL_LENGTH,
+	// Path.of("/data/tmp/psfull.pdf"));
+	// }
+	// catch (Exception e)
+	// {
+	// throw new RuntimeException(e);
+	// }
+	//
+	// }
 }

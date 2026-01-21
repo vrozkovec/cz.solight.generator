@@ -24,7 +24,7 @@
 		                <table style="width: 100%; border-collapse: collapse;">
 		                    <tr>
 		                        <td style="width: 60px; vertical-align: middle;">
-		                            <img src="${vlnkaBase64}" style="width: 50px; height: auto;"/>
+		                            <img src="${offerVlnkaBase64}" style="width: 50px; height: auto;"/>
 		                        </td>
 		                        <td style="vertical-align: middle;">
 		                            <div style="font-weight: 700;">

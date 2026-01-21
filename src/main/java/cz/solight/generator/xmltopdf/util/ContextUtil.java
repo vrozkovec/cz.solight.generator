@@ -39,8 +39,13 @@ public class ContextUtil
 	private static final Logger log = LoggerFactory.getLogger(ContextUtil.class);
 
 	/** Image paths for logo and wave. */
-	private static final String IMG_LOGO = "/webapp/img/logo_nove.png";
-	private static final String IMG_VLNKA = "/webapp/img/vlnka.png";
+	private static final String IMG_LOGO_OFFER = "/webapp/img/offer-logo.png";
+	/** Image paths for logo and wave. */
+	private static final String IMG_VLNKA_OFFER = "/webapp/img/offer-vlnka.png";
+	/** Image paths for logo and wave. */
+	private static final String IMG_LOGO_PS = "/webapp/img/product-sheet-logo.png";
+	/** Image paths for logo and wave. */
+	private static final String IMG_VLNKA_PS = "/webapp/img/product-sheet-vlnka.png";
 
 	// Cache to store Base64 strings so we don't read disk on every request
 	private static final Map<String, String> FONT_CACHE = new ConcurrentHashMap<>();
@@ -95,8 +100,10 @@ public class ContextUtil
 
 		// Base64 encoded images for header/footer templates (Playwright doesn't load external
 		// images)
-		context.put("logoBase64", loadImageAsBase64DataUrl(IMG_LOGO));
-		context.put("vlnkaBase64", loadImageAsBase64DataUrl(IMG_VLNKA));
+		context.put("offerLogoBase64", loadImageAsBase64DataUrl(IMG_LOGO_OFFER));
+		context.put("offerVlnkaBase64", loadImageAsBase64DataUrl(IMG_VLNKA_OFFER));
+		context.put("psLogoBase64", loadImageAsBase64DataUrl(IMG_LOGO_PS));
+		context.put("psVlnkaBase64", loadImageAsBase64DataUrl(IMG_VLNKA_PS));
 
 		populateFontContext(context);
 

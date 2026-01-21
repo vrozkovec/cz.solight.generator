@@ -80,12 +80,12 @@ public class ProductSheetPdfGenerator
 	private static final int A4_WIDTH_PX = (int)(A4_WIDTH_INCHES * PRINT_DPI); // ~794px
 
 	/** Header height in inches (100px at 96 DPI). */
-	private static final String HEADER_MARGIN = "0";
-	private static final double HEADER_MARGIN_INCHES = 0;
+	private static final String HEADER_MARGIN = "1in";
+	private static final double HEADER_MARGIN_INCHES = 1;
 
-	/** Footer height in inches (80px at 96 DPI). */
-	private static final String FOOTER_MARGIN = "0";
-	private static final double FOOTER_MARGIN_INCHES = 0;
+	/** Header height in inches (108px at 96 DPI). */
+	private static final String FOOTER_MARGIN = "1.125in";
+	private static final double FOOTER_MARGIN_INCHES = 1.125;
 
 	/** Gotenberg server URL. */
 	private final String gotenbergUrl;

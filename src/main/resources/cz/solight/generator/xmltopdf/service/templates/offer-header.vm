@@ -15,7 +15,7 @@
 	</head>
 	<body>
 		<div style="width: 100%; padding: 0 0 0 80px; font-size: 10px; -webkit-print-color-adjust: exact; box-sizing: border-box;">
-		    <img src="${logoBase64}" style="width: 250px; height: auto;"/>
+		    <img src="${offerLogoBase64}" style="width: 250px; height: auto;"/>
 		</div>
 	</body>
 </html>
