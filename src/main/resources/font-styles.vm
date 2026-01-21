@@ -1,0 +1,125 @@
+<style>
+    /* Base Font Family Definition */
+    
+    /* 1. Black (900) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_Black}') format('truetype');
+        font-weight: 900;
+        font-style: normal;
+        font-display: block;
+    }
+
+    /* 2. Bold (700) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_Bold}') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: block;
+    }
+    
+    /* 3. Bold Italic (700 Italic) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_BoldItalic}') format('truetype');
+        font-weight: 700;
+        font-style: italic;
+        font-display: block;
+    }
+
+    /* 4. Bold Condensed (700 Condensed) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_BoldCondensed}') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-stretch: condensed;
+        font-display: block;
+    }
+
+    /* 5. Extra Bold (800) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_ExtraBold}') format('truetype');
+        font-weight: 800;
+        font-style: normal;
+        font-display: block;
+    }
+
+    /* 6. Extra Bold Italic (800 Italic) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_ExtraBoldItalic}') format('truetype');
+        font-weight: 800;
+        font-style: italic;
+        font-display: block;
+    }
+
+    /* 7. Extra Light (200) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_ExtraLight}') format('truetype');
+        font-weight: 200;
+        font-style: normal;
+        font-display: block;
+    }
+
+    /* 8. Extra Light Italic (200 Italic) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_ExtraLightItalic}') format('truetype');
+        font-weight: 200;
+        font-style: italic;
+        font-display: block;
+    }
+
+    /* 9. Light Condensed (300 Condensed) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_LightCondensed}') format('truetype');
+        font-weight: 300;
+        font-style: normal;
+        font-stretch: condensed;
+        font-display: block;
+    }
+
+    /* 10. Regular (400) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_Regular}') format('truetype');
+        font-weight: 400; /* or normal */
+        font-style: normal;
+        font-display: block;
+    }
+
+    /* 11. Regular Condensed (400 Condensed) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_RegularCondensed}') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-stretch: condensed;
+        font-display: block;
+    }
+
+    /* 12. SemiBold Condensed (600 Condensed) */
+    @font-face {
+        font-family: 'Exo 2';
+        src: url('data:font/ttf;base64,${Exo2_SemiBoldCondensed}') format('truetype');
+        font-weight: 600;
+        font-style: normal;
+        font-stretch: condensed;
+        font-display: block;
+    }
+
+    /* Usage Example applied to Body */
+    body {
+        font-family: 'Exo 2', sans-serif;
+    }
+    
+    /* Bootstrap overrides if necessary */
+    .fw-bold { font-weight: 700 !important; }
+    .fw-light { font-weight: 300 !important; }
+    .fw-black { font-weight: 900 !important; }
+</style>

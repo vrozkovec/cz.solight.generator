@@ -15,7 +15,6 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.AjaxDownloadBehavior;
 import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -40,6 +39,9 @@ import name.berries.wicket.util.app.WicketAppUtil;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.BootstrapAjaxLink;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.ButtonGroup;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.Buttons.Type;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileInputConfig;
+import de.agilecoders.wicket.jquery.Key;
 
 /**
  * Wicket panel for uploading XML offer files and generating PDF catalogs. Provides checkboxes to
@@ -57,7 +59,7 @@ public class ParserPanel extends Panel
 	@Inject
 	private OfferPdfGenerator offerPdfGenerator;
 
-	private FileUploadField fileUploadField;
+	private BootstrapFileInputField fileUploadField;
 	private Model<Boolean> showPriceMyModel = Model.of(true);
 	private Model<Boolean> showPriceVOCModel = Model.of(true);
 	private Model<Boolean> showPriceMOCModel = Model.of(true);
@@ -128,7 +130,17 @@ public class ParserPanel extends Panel
 		add(uploadForm);
 
 		// Add file upload field
-		fileUploadField = new FileUploadField("fileInput");
+		fileUploadField = new BootstrapFileInputField("fileInput");
+		FileInputConfig fileInputConfig = fileUploadField.getConfig();
+		fileInputConfig.showCaption(true);
+		// fileInputConfig.showPreview(false);
+		fileInputConfig.showUpload(false);
+		fileInputConfig.withLocale("cs");
+		fileInputConfig.maxFileCount(1);
+		fileInputConfig.put(new Key<>("browseOnZoneClick"), true);
+		fileInputConfig.withDropZoneEnabled(true);
+
+
 		uploadForm.add(fileUploadField);
 
 		uploadForm.add(new ButtonGroup("locale")

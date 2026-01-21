@@ -32,6 +32,7 @@ import cz.solight.generator.xmltopdf.service.SftpConfig;
 import cz.solight.generator.xmltopdf.wicket.app.PdfGeneratorApplication;
 
 import name.berries.app.scheduler.WicketAppBoundJob;
+import name.berries.wicket.util.app.WicketAppUtil;
 
 /**
  * @author rozkovec
@@ -52,7 +53,9 @@ public class JobOneTime extends WicketAppBoundJob<PdfGeneratorApplication>
 		throws JobExecutionException
 	{
 		JobAction action = new JobAction();
-		uploadConvertedProductSheets(action);
+
+		if (!WicketAppUtil.localMode())
+			uploadConvertedProductSheets(action);
 	}
 
 	static void uploadConvertedProductSheets(JobAction action)

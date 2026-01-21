@@ -16,14 +16,14 @@
  */
 package cz.solight.generator.xmltopdf.service;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,17 +36,17 @@ import org.slf4j.LoggerFactory;
 
 import cz.solight.generator.xmltopdf.pojo.IssuedOffer;
 import cz.solight.generator.xmltopdf.pojo.PdfDisplayOptions;
+import cz.solight.generator.xmltopdf.util.ContextUtil;
 
-import name.berries.pdf.PdfGeneratorService;
-import name.berries.pdf.PdfOptions;
 import name.berries.wicket.util.app.AppConfigProvider;
 import name.berries.wicket.util.app.AppConfigProvider.ConfigKey;
 
-import jakarta.inject.Inject;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
 
 /**
  * Service for generating PDF catalogs from parsed offer data. Uses Velocity templates for HTML
- * generation and Playwright for PDF conversion.
+ * generation and Gotenberg for PDF conversion with repeating header/footer on each page.
  */
 public class OfferPdfGenerator
 {
@@ -59,19 +59,19 @@ public class OfferPdfGenerator
 	private static final int TOC_FIRST_PAGE_LIMIT = 12;
 	private static final int TOC_OTHER_PAGE_LIMIT = 15;
 
-	/** Image paths for header/footer (Playwright requires base64 embedded images). */
-	private static final String IMG_LOGO = "/webapp/img/logo_nove.png";
-	private static final String IMG_VLNKA = "/webapp/img/vlnka.png";
+	/** Header/footer margin in inches (108px at 96 DPI = 1.125 inches). */
+	private static final String HEADER_MARGIN = "1in";
+	private static final String FOOTER_MARGIN = "1.125in";
 
-	@Inject
-	private PdfGeneratorService pdfGeneratorService;
+	/** Gotenberg server URL. */
+	private final String gotenbergUrl;
 
 	/**
-	 * Construct.
+	 * Creates a new PDF generator using Gotenberg URL from configuration.
 	 */
 	public OfferPdfGenerator()
 	{
-		super();
+		gotenbergUrl = AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.GOTENBERG_URL);
 	}
 
 	/**
@@ -94,12 +94,16 @@ public class OfferPdfGenerator
 		// Build Velocity context
 		Map<String, Object> context = buildContext(offer, options);
 
-		// Render HTML from template
-		var html = renderTemplate(context);
+		// Render all three templates (main, header, footer)
+		var mainHtml = renderTemplate(context);
+		var headerHtml = renderVelocityTemplate(HEADER_TEMPLATE_PATH, context);
+		var footerHtml = renderVelocityTemplate(FOOTER_TEMPLATE_PATH, context);
 
-		// Generate PDF with repeating header/footer
-		var pdfOptions = createPdfOptions(context);
-		pdfGeneratorService.generatePdfFromHtml(html, outputPath.toString(), pdfOptions);
+		// Generate PDF via Gotenberg with repeating header/footer
+		byte[] pdfBytes = generatePdfWithHeaderFooter(mainHtml, headerHtml, footerHtml);
+
+		// Write to output file
+		Files.write(outputPath, pdfBytes);
 
 		LOG.info("PDF generated successfully: {}", outputPath);
 	}
@@ -124,6 +128,7 @@ public class OfferPdfGenerator
 			offer.setCreatorEmail(locale.getDefaultEmail());
 		}
 
+
 		// Offer data
 		context.put("offer", offer);
 		context.put("firm", offer.getFirm());
@@ -147,92 +152,54 @@ public class OfferPdfGenerator
 		context.put("tocFirstPageLimit", TOC_FIRST_PAGE_LIMIT);
 		context.put("tocOtherPageLimit", TOC_OTHER_PAGE_LIMIT);
 
-		context.put("baseUrl", AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.APP_BASE_URL));
-		context.put("baseImagesUrl", AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.APP_BASE_IMAGES_URL));
+		ContextUtil.addCommonValues(context);
 
-		// Base64 encoded images for header/footer templates (Playwright doesn't load external
-		// images)
-		context.put("logoBase64", loadImageAsBase64DataUrl(IMG_LOGO));
-		context.put("vlnkaBase64", loadImageAsBase64DataUrl(IMG_VLNKA));
 
 		return context;
 	}
 
 	/**
-	 * Renders the Velocity template with the given context.
+	 * Renders the main Velocity template with the given context.
 	 *
 	 * @param context
-	 * @return html
+	 *            the Velocity context
+	 * @return rendered HTML string
 	 */
 	private String renderTemplate(Map<String, Object> context)
 	{
-		try (var textTemplate = new PackageTextTemplate(OfferPdfGenerator.class, TEMPLATE_PATH))
+		return renderVelocityTemplate(TEMPLATE_PATH, context);
+	}
+
+	/**
+	 * Generates a PDF with Gotenberg using native header/footer support. Header and footer are sent
+	 * as separate files and repeat on each page.
+	 *
+	 * @param mainHtml
+	 *            the main content HTML
+	 * @param headerHtml
+	 *            the header HTML (complete HTML document)
+	 * @param footerHtml
+	 *            the footer HTML (complete HTML document)
+	 * @return PDF bytes
+	 * @throws Exception
+	 *             if generation fails
+	 */
+	private byte[] generatePdfWithHeaderFooter(String mainHtml, String headerHtml, String footerHtml) throws Exception
+	{
+		HttpResponse<byte[]> response = Unirest.post(gotenbergUrl + "/forms/chromium/convert/html")
+			.field("files", new ByteArrayInputStream(mainHtml.getBytes(StandardCharsets.UTF_8)), "index.html")
+			.field("files", new ByteArrayInputStream(headerHtml.getBytes(StandardCharsets.UTF_8)), "header.html")
+			.field("files", new ByteArrayInputStream(footerHtml.getBytes(StandardCharsets.UTF_8)), "footer.html")
+			.field("preferCssPageSize", "true").field("printBackground", "true").field("marginTop", HEADER_MARGIN)
+			.field("marginBottom", FOOTER_MARGIN).field("marginLeft", "0").field("marginRight", "0").asBytes();
+
+		if (!response.isSuccess())
 		{
-			var template = textTemplate.asString();
-			var reader = new StringReader(template);
-
-			var velocityContext = new VelocityContext(context);
-			var writer = new StringWriter();
-
-			Velocity.evaluate(velocityContext, writer, TEMPLATE_PATH, reader);
-
-			return writer.toString();
+			throw new RuntimeException(
+				"PDF generation failed: " + response.getStatus() + " - " + new String(response.getBody(), StandardCharsets.UTF_8));
 		}
-		catch (Exception e)
-		{
-			LOG.error("Failed to render template", e);
-			throw new RuntimeException("Failed to render PDF template: " + e.getMessage(), e);
-		}
-	}
 
-	/**
-	 * Creates PDF options for A4 format with repeating header and footer.
-	 *
-	 * @param context
-	 *            the Velocity context with variables for header/footer templates
-	 * @return configured PDF options
-	 */
-	private PdfOptions createPdfOptions(Map<String, Object> context)
-	{
-		var options = new PdfOptions();
-		options.setFormat("A4");
-		options.setPrintBackground(true);
-		options.setMarginTop("108px");
-		options.setMarginBottom("108px");
-		options.setMarginLeft("0");
-		options.setMarginRight("0");
-		options.setWaitFor("networkidle");
-
-		// Enable repeating header/footer on every page
-		options.setDisplayHeaderFooter(true);
-		options.setHeaderTemplate(renderHeaderTemplate(context));
-		options.setFooterTemplate(renderFooterTemplate(context));
-
-		return options;
-	}
-
-	/**
-	 * Renders the header template with the given context.
-	 *
-	 * @param context
-	 *            the Velocity context
-	 * @return rendered HTML for header
-	 */
-	private String renderHeaderTemplate(Map<String, Object> context)
-	{
-		return renderVelocityTemplate(HEADER_TEMPLATE_PATH, context);
-	}
-
-	/**
-	 * Renders the footer template with the given context.
-	 *
-	 * @param context
-	 *            the Velocity context
-	 * @return rendered HTML for footer
-	 */
-	private String renderFooterTemplate(Map<String, Object> context)
-	{
-		return renderVelocityTemplate(FOOTER_TEMPLATE_PATH, context);
+		return response.getBody();
 	}
 
 	/**
@@ -259,36 +226,6 @@ public class OfferPdfGenerator
 			var errorMsg = "Failed to render template: " + templatePath + " - " + e.getMessage();
 			LOG.error("Failed to render template: {}", templatePath, e);
 			throw new RuntimeException(errorMsg, e);
-		}
-	}
-
-	/**
-	 * Loads an image from the classpath and converts it to a base64 data URL. Playwright's
-	 * header/footer templates run in isolation and cannot load external images, so images must be
-	 * embedded as base64 data URLs.
-	 *
-	 * @param resourcePath
-	 *            the classpath resource path (e.g., "/webapp/img/logo.png")
-	 * @return base64 data URL string (e.g., "data:image/png;base64,...")
-	 */
-	private String loadImageAsBase64DataUrl(String resourcePath)
-	{
-		try (InputStream is = getClass().getResourceAsStream(resourcePath))
-		{
-			if (is == null)
-			{
-				LOG.warn("Image not found: {}", resourcePath);
-				return "";
-			}
-			var bytes = is.readAllBytes();
-			var base64 = Base64.getEncoder().encodeToString(bytes);
-			var mimeType = resourcePath.endsWith(".png") ? "image/png" : "image/jpeg";
-			return "data:" + mimeType + ";base64," + base64;
-		}
-		catch (IOException e)
-		{
-			LOG.error("Failed to load image: {}", resourcePath, e);
-			return "";
 		}
 	}
 }

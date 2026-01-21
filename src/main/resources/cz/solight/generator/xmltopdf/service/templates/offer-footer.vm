@@ -1,50 +1,68 @@
 ## Repeating footer template for Playwright PDF generation
 ## All styles must be inline - header/footer templates are rendered in isolation
 ## Images must be base64 encoded - Playwright doesn't load external images in header/footer
-<div style="width: 100%; height: 80px; font-size: 9px; font-family: Arial, sans-serif; -webkit-print-color-adjust: exact; padding: 15px 48px 0 48px; box-sizing: border-box;">
-    <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-            <td style="width: 50%; height: 48px; padding-left: 24px; border-right: 1px solid black; vertical-align: middle;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 50px; vertical-align: middle;">
-                            <img src="${vlnkaBase64}" style="width: 40px; height: auto;"/>
-                        </td>
-                        <td style="vertical-align: middle;">
-                            <div style="font-weight: bold; font-style: italic; font-size: 12px;">
-                                $locale.headerTitle $!firm.name
-                            </div>
-                            <div style="font-style: italic; font-size: 11px;">
-                                $locale.datePrefix $currentDate - $locale.validUntilLabel $!offer.validTillFormatted
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td style="width: 50%; height: 48px; padding-left: 24px; vertical-align: middle;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 40%; vertical-align: middle;">
-                            <div style="font-style: italic; font-size: 11px;">
-                                $locale.createdByLabel
-                            </div>
-                            <div style="font-weight: bold; font-style: italic; font-size: 12px;">
-                                $!offer.creator
-                            </div>
-                        </td>
-                        <td style="width: 60%; vertical-align: middle;">
-                            <div style="font-style: italic; font-size: 11px;">
-                                e-mail: <a href="mailto:$!offer.creatorEmail" style="color: #444; text-decoration: none;">$!offer.creatorEmail</a>
-                            </div>
-                            <div>
-                                <a href="https://$locale.websiteUrl" style="color: #f36717; font-weight: bold; font-size: 14px; text-decoration: none;">
-                                    $locale.websiteUrl
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</div>
+<html>
+	<head>
+		#parse( "font-styles.vm" )
+	    <style>
+	        body {
+	            margin: 0;
+	            padding: 0;
+	            font-size: 10.5pt;
+	            font-family: 'Exo 2', sans-serif;
+	            font-display: block;
+	            font-stretch: condensed;
+	            -webkit-print-color-adjust: exact;
+	        }
+	    </style>		
+	</head>
+	<body>
+		<div style="width: 100%; height: 80px; padding: 15px 48px 0 48px; box-sizing: border-box;">
+		    <table style="width: 100%; border-collapse: collapse;">
+		        <tr>
+		            <td style="width: 50%; height: 48px; border-right: 1px solid black; vertical-align: middle;">
+		                <table style="width: 100%; border-collapse: collapse;">
+		                    <tr>
+		                        <td style="width: 60px; vertical-align: middle;">
+		                            <img src="${vlnkaBase64}" style="width: 50px; height: auto;"/>
+		                        </td>
+		                        <td style="vertical-align: middle;">
+		                            <div style="font-weight: 700;">
+		                                $locale.headerTitle $!firm.name
+		                            </div>
+		                            <div>
+		                                $locale.datePrefix $currentDate - $locale.validUntilLabel $!offer.validTillFormatted
+		                            </div>
+		                        </td>
+		                    </tr>
+		                </table>
+		            </td>
+		            <td style="width: 50%; height: 48px; padding-left: 24px; vertical-align: middle;">
+		                <table style="width: 100%; border-collapse: collapse;">
+		                    <tr>
+		                        <td style="width: 40%; vertical-align: middle;">
+		                            <div>
+		                                $locale.createdByLabel
+		                            </div>
+		                            <div style="font-weight: 700;">
+		                                $!offer.creator
+		                            </div>
+		                        </td>
+		                        <td style="width: 60%; vertical-align: middle;">
+		                            <div>
+		                                e-mail: <a href="mailto:$!offer.creatorEmail" style="color: #444; text-decoration: none;">$!offer.creatorEmail</a>
+		                            </div>
+		                            <div>
+		                                <a href="https://$locale.websiteUrl" style="color: #f36717; font-weight: 700; font-size: 12.8pt; text-decoration: none;">
+		                                    $locale.websiteUrl
+		                                </a>
+		                            </div>
+		                        </td>
+		                    </tr>
+		                </table>
+		            </td>
+		        </tr>
+		    </table>
+		</div>
+	</body>
+</html>

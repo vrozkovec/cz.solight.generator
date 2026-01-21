@@ -2,15 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
+	#parse( "font-styles.vm" )
+	
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-size: 11px;
-            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-family: 'Exo 2', sans-serif;
             -webkit-print-color-adjust: exact;
         }
-    </style>
+    </style>	
 </head>
 <body style="border: solid 1px blue;">
     <div style="width: 100%; height: 80px; background-color: #f36717; box-sizing: border-box; padding: 15px 48px; position: relative; top: 20px;">
@@ -23,16 +25,16 @@
                     <div style="font-weight: bold; font-size: 13px;">
                         SOLIGHT HOLDING, S.R.O.
                     </div>
-                    <div style="font-size: 11px;">
+                    <div>
                         Na Brně 1972, Hradec Králové 500 06
                     </div>
                 </td>
                 <td style="width: 1px; background-color: rgba(255,255,255,0.5); height: 40px;"></td>
                 <td style="vertical-align: middle; padding-left: 25px; color: white;">
-                    <div style="font-size: 11px;">
+                    <div>
                         tel.: +420 491 512 010
                     </div>
-                    <div style="font-size: 11px;">
+                    <div>
                         tel.: +420 800 320 155
                     </div>
                 </td>
@@ -40,7 +42,7 @@
                     <div style="font-size: 11px;">
                         e-mail: <a href="mailto:info@solight.cz" style="color: white; text-decoration: none;">info@solight.cz</a>
                     </div>
-                    <div style="font-weight: bold; font-size: 12px;">
+                    <div style="font-weight: bold; font-size: 16px;">
                         <a href="https://www.solight.cz" style="color: white; text-decoration: none;">www.solight.cz</a> / <a href="https://www.solight.sk" style="color: white; text-decoration: none;">www.solight.sk</a>
                     </div>
                 </td>

@@ -19,14 +19,11 @@ package cz.solight.generator.xmltopdf.service;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.solight.generator.xmltopdf.pojo.ProductSheet;
 import cz.solight.generator.xmltopdf.pojo.ProductSheetFormat;
+import cz.solight.generator.xmltopdf.util.ContextUtil;
 
 import name.berries.wicket.util.app.AppConfigProvider;
 import name.berries.wicket.util.app.AppConfigProvider.ConfigKey;
@@ -65,15 +63,12 @@ import kong.unirest.core.Unirest;
  */
 public class ProductSheetPdfGenerator
 {
-	private static final Logger LOG = LoggerFactory.getLogger(ProductSheetPdfGenerator.class);
+	private static final Logger log = LoggerFactory.getLogger(ProductSheetPdfGenerator.class);
 
 	private static final String TEMPLATE_PATH = "templates/product-sheet.vm";
 	private static final String HEADER_TEMPLATE_PATH = "templates/product-sheet-header.vm";
 	private static final String FOOTER_TEMPLATE_PATH = "templates/product-sheet-footer.vm";
 
-	/** Image paths for logo and wave. */
-	private static final String IMG_LOGO = "/webapp/img/logo_nove.png";
-	private static final String IMG_VLNKA = "/webapp/img/vlnka.png";
 
 	/** A4 width in inches for Gotenberg. */
 	private static final double A4_WIDTH_INCHES = 8.27;
@@ -92,9 +87,6 @@ public class ProductSheetPdfGenerator
 	private static final String FOOTER_MARGIN = "0";
 	private static final double FOOTER_MARGIN_INCHES = 0;
 
-	/** Default Gotenberg URL. */
-	private static final String DEFAULT_GOTENBERG_URL = "http://localhost:3000";
-
 	/** Gotenberg server URL. */
 	private final String gotenbergUrl;
 
@@ -103,7 +95,7 @@ public class ProductSheetPdfGenerator
 	 */
 	public ProductSheetPdfGenerator()
 	{
-		gotenbergUrl = AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.GOTENBERG_URL, DEFAULT_GOTENBERG_URL);
+		gotenbergUrl = AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.GOTENBERG_URL);
 	}
 
 	/**
@@ -129,7 +121,7 @@ public class ProductSheetPdfGenerator
 	public void generateAllPdfs(List<ProductSheet> products, Consumer<File> fileConsumer) throws Exception
 	{
 		Path outputDir = Files.createTempDirectory("product-sheets-");
-		LOG.info("Generating PDFs via Gotenberg for {} products to {}", products.size(), outputDir);
+		log.info("Generating PDFs via Gotenberg for {} products to {}", products.size(), outputDir);
 
 		int successCount = 0;
 		int failCount = 0;
@@ -152,12 +144,12 @@ public class ProductSheetPdfGenerator
 			catch (Exception e)
 			{
 				e.printStackTrace();
-				LOG.error("Failed to generate PDFs for product {}: {}", product.getCode(), e.getMessage());
+				log.error("Failed to generate PDFs for product {}: {}", product.getCode(), e.getMessage());
 				failCount++;
 			}
 		}
 
-		LOG.info("PDF generation complete: {} successful, {} failed", successCount, failCount);
+		log.info("PDF generation complete: {} successful, {} failed", successCount, failCount);
 	}
 
 	/**
@@ -174,7 +166,7 @@ public class ProductSheetPdfGenerator
 	 */
 	public void generatePdf(ProductSheet product, ProductSheetFormat format, Path outputPath) throws Exception
 	{
-		LOG.debug("Generating {} PDF via Gotenberg for product {} to {}", format, product.getCode(), outputPath);
+		log.debug("Generating {} PDF via Gotenberg for product {} to {}", format, product.getCode(), outputPath);
 
 		// Build Velocity context
 		Map<String, Object> context = buildContext(product, format);
@@ -200,7 +192,7 @@ public class ProductSheetPdfGenerator
 		// Write to output file
 		Files.write(outputPath, pdfBytes);
 
-		LOG.debug("PDF generated: {}", outputPath);
+		log.debug("PDF generated: {}", outputPath);
 	}
 
 	/**
@@ -222,7 +214,7 @@ public class ProductSheetPdfGenerator
 	{
 		// Step 1: Measure content height via screenshot
 		int contentHeightPx = measureContentHeight(mainHtml, headerHtml, footerHtml);
-		LOG.info("Measured content height: {}px", contentHeightPx);
+		log.info("Measured content height: {}px", contentHeightPx);
 
 		// Step 2: Generate PDF with exact dimensions
 		return generatePdfWithHeight(mainHtml, headerHtml, footerHtml, contentHeightPx);
@@ -291,7 +283,7 @@ public class ProductSheetPdfGenerator
 		// Read image dimensions
 		BufferedImage image = ImageIO.read(new ByteArrayInputStream(response.getBody()));
 		int height = image.getHeight();
-		LOG.debug("Screenshot dimensions: {}x{} px", image.getWidth(), height);
+		log.debug("Screenshot dimensions: {}x{} px", image.getWidth(), height);
 		return height;
 	}
 
@@ -322,7 +314,7 @@ public class ProductSheetPdfGenerator
 		// Total page height = header margin + content + footer margin
 		double totalHeightInches = HEADER_MARGIN_INCHES + contentHeightInches + FOOTER_MARGIN_INCHES;
 
-		LOG.debug("Generating PDF: {}x{} inches (header={}, content={}px/{}, footer={})", A4_WIDTH_INCHES, totalHeightInches,
+		log.debug("Generating PDF: {}x{} inches (header={}, content={}px/{}, footer={})", A4_WIDTH_INCHES, totalHeightInches,
 			HEADER_MARGIN_INCHES, contentHeightPx, contentHeightInches, FOOTER_MARGIN_INCHES);
 
 		HttpResponse<byte[]> response = Unirest.post(gotenbergUrl + "/forms/chromium/convert/html")
@@ -362,13 +354,7 @@ public class ProductSheetPdfGenerator
 		// Format-specific flags
 		context.put("isFullLength", format == ProductSheetFormat.FULL_LENGTH);
 
-		// URLs
-		context.put("baseUrl", AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.APP_BASE_URL));
-		context.put("baseImagesUrl", AppConfigProvider.getDefaultConfiguration().getString(ConfigKey.APP_BASE_IMAGES_URL));
-
-		// Base64 encoded images for header/footer
-		context.put("logoBase64", loadImageAsBase64DataUrl(IMG_LOGO));
-		context.put("vlnkaBase64", loadImageAsBase64DataUrl(IMG_VLNKA));
+		ContextUtil.addCommonValues(context);
 
 		return context;
 	}
@@ -394,36 +380,9 @@ public class ProductSheetPdfGenerator
 		}
 		catch (Exception e)
 		{
-			LOG.error("Failed to render template: {}", templatePath, e);
+			log.error("Failed to render template: {}", templatePath, e);
 			throw new RuntimeException("Failed to render template: " + templatePath + " - " + e.getMessage(), e);
 		}
 	}
 
-	/**
-	 * Loads an image from the classpath and converts it to a base64 data URL.
-	 *
-	 * @param resourcePath
-	 *            the classpath resource path
-	 * @return base64 data URL string
-	 */
-	private String loadImageAsBase64DataUrl(String resourcePath)
-	{
-		try (InputStream is = getClass().getResourceAsStream(resourcePath))
-		{
-			if (is == null)
-			{
-				LOG.warn("Image not found: {}", resourcePath);
-				return "";
-			}
-			var bytes = is.readAllBytes();
-			var base64 = Base64.getEncoder().encodeToString(bytes);
-			var mimeType = resourcePath.endsWith(".png") ? "image/png" : "image/jpeg";
-			return "data:" + mimeType + ";base64," + base64;
-		}
-		catch (IOException e)
-		{
-			LOG.error("Failed to load image: {}", resourcePath, e);
-			return "";
-		}
-	}
 }
