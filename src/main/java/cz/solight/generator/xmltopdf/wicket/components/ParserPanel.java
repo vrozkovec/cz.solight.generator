@@ -15,7 +15,9 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.AbstractLink;
+import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse.CacheScope;
@@ -69,6 +71,8 @@ public class ParserPanel extends Panel
 	private Model<PdfLocale> localeModel = Model.of(PdfLocale.CZ);
 	private WebMarkupContainer pdfPreviewContainer;
 	private WebMarkupContainer pdfFrame;
+	private DownloadLink downloadLink;
+	private IModel<File> pdfFileModel = Model.of();
 
 	/**
 	 * Constructor for ParserPanel.
@@ -99,6 +103,11 @@ public class ParserPanel extends Panel
 		pdfFrame = new WebMarkupContainer("pdfFrame");
 		pdfFrame.setOutputMarkupId(true);
 		pdfPreviewContainer.add(pdfFrame);
+
+		// Create download link using native Wicket DownloadLink
+		downloadLink = new DownloadLink("downloadLink", pdfFileModel);
+		downloadLink.setOutputMarkupId(true);
+		pdfPreviewContainer.add(downloadLink);
 
 		// Create upload form
 		var uploadForm = new Form<Void>("uploadForm");
@@ -252,8 +261,9 @@ public class ParserPanel extends Panel
 				.urlFor(new SharedResourceReference(ParserPanel.class, PDF_RESOURCE_KEY), params)
 				.toString();
 
-			// Update iframe src and show preview container
+			// Update iframe src, set download file, and show preview container
 			pdfFrame.add(AttributeModifier.replace("src", pdfUrl));
+			pdfFileModel.setObject(outputPath.toFile());
 			pdfPreviewContainer.add(AttributeModifier.replace("style", "display: block;"));
 
 			// Add components to AJAX target for refresh
@@ -267,8 +277,8 @@ public class ParserPanel extends Panel
 	}
 
 	/**
-	 * Registers a shared resource for serving PDF files from the temp directory. The resource is
-	 * registered only once per application lifecycle.
+	 * Registers the shared resource for serving PDF files inline (for iframe display). The resource
+	 * is registered only once per application lifecycle.
 	 */
 	private void registerPdfResource()
 	{
@@ -280,7 +290,7 @@ public class ParserPanel extends Panel
 			return;
 		}
 
-		// Register the PDF serving resource
+		// Register inline PDF resource (for iframe display)
 		sharedResources.add(ParserPanel.class, PDF_RESOURCE_KEY, null, null, null, new AbstractResource()
 		{
 			private static final long serialVersionUID = 1L;
