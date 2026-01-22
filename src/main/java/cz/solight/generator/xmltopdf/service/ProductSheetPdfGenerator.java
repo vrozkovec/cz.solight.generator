@@ -81,11 +81,11 @@ public class ProductSheetPdfGenerator
 
 	/** Header height in inches (100px at 96 DPI). */
 	private static final String HEADER_MARGIN = "1in";
-	private static final double HEADER_MARGIN_INCHES = 1;
+	private static final double HEADER_MARGIN_INCHES = 0.8;
 
 	/** Header height in inches (108px at 96 DPI). */
-	private static final String FOOTER_MARGIN = "1.125in";
-	private static final double FOOTER_MARGIN_INCHES = 1.125;
+	private static final String FOOTER_MARGIN = "1";
+	private static final double FOOTER_MARGIN_INCHES = 0;
 
 	/** Gotenberg server URL. */
 	private final String gotenbergUrl;
@@ -310,7 +310,7 @@ public class ProductSheetPdfGenerator
 		double contentHeightInches = (double)contentHeightPx / PRINT_DPI;
 
 		// Add 5% buffer to account for rendering differences between screenshot and PDF
-		contentHeightInches += 0.5;
+		// contentHeightInches += 0.5;
 
 		// Total page height = header margin + content + footer margin
 		double totalHeightInches = HEADER_MARGIN_INCHES + contentHeightInches + FOOTER_MARGIN_INCHES;
