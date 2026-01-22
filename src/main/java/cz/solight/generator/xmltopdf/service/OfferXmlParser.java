@@ -197,7 +197,7 @@ public class OfferXmlParser
 
 			// Convert picture path to URL
 			var picturePath = getElementText(storeCard, "PicturePath");
-			product.setPictureUrl(imagePathConverter.convertToUrl(picturePath));
+			product.setPictureUrl(imagePathConverter.convertToUrl(product.getCode(), picturePath));
 
 			// Parse and format description
 			var rawDescription = getElementText(storeCard, "Description");

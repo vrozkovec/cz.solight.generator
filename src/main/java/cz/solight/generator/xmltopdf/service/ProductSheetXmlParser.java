@@ -225,10 +225,13 @@ public class ProductSheetXmlParser
 		var rawDescription = getElementText(productElement, "Description");
 		product.setDescription(decodeHtmlEntities(rawDescription));
 
-		// Picture filenames (will be converted to URLs by the POJO)
-		product.setPicture1Url(imagePathConverter.convertToUrl(getElementText(productElement, "PICTURE1")));
-		product.setPicture2Url(imagePathConverter.convertToUrl(getElementText(productElement, "PICTURE2")));
-		product.setPicture3Url(imagePathConverter.convertToUrl(getElementText(productElement, "PICTURE3")));
+		if (product.isValid())
+		{
+			// Picture filenames (will be converted to URLs by the POJO)
+			product.setPicture1Url(imagePathConverter.convertToUrl(product.getCode(), getElementText(productElement, "PICTURE1")));
+			product.setPicture2Url(imagePathConverter.convertToUrl(product.getCode(), getElementText(productElement, "PICTURE2")));
+			product.setPicture3Url(imagePathConverter.convertToUrl(product.getCode(), getElementText(productElement, "PICTURE3")));
+		}
 
 		return product;
 	}

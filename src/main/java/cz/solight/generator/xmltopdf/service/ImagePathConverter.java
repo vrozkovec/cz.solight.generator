@@ -18,7 +18,10 @@ package cz.solight.generator.xmltopdf.service;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,8 +35,8 @@ import name.berries.wicket.util.app.AppConfigProvider.ConfigKey;
  * "\\webserver\storecards\1D31A.jpg" to HTTP URLs.
  *
  * <p>
- * If the image is not found at the original URL, the converter will try uppercase and lowercase
- * filename variants.
+ * If the image is not found at the original URL, the converter will try all possible letter case
+ * combinations until the image is found.
  */
 public class ImagePathConverter
 {
@@ -45,6 +48,7 @@ public class ImagePathConverter
 
 	private final String uncPrefix;
 	private final String httpBaseUrl;
+	private final Map<String, String> cache = new HashMap<>();
 
 	/**
 	 * Creates a converter with default Solight settings.
@@ -69,20 +73,25 @@ public class ImagePathConverter
 	}
 
 	/**
-	 * Converts a UNC path to an HTTP URL, trying case variants if the original is not found.
+	 * Converts a UNC path to an HTTP URL, trying all letter case combinations if the original is
+	 * not found.
 	 *
 	 * <p>
 	 * Example: "\\webserver\storecards\1D31A.jpg" -&gt;
 	 * "https://generator.solight.cz/obrazky/1D31A.jpg"
 	 *
 	 * <p>
-	 * If the image is not found, tries uppercase (1D31A.JPG) and lowercase (1d31a.jpg) variants.
+	 * If the image is not found, tries all possible letter case combinations (e.g., for "Ab.jpg":
+	 * "Ab.jpg", "AB.jpg", "ab.jpg", "aB.jpg", "Ab.JPG", etc.) until a working URL is found.
 	 *
+	 * @param productCode
+	 *            code of the product
 	 * @param uncPath
 	 *            the UNC path from the XML
+	 * @param picturePath
 	 * @return the HTTP URL for the image (with working case variant if found)
 	 */
-	public String convertToUrl(String uncPath)
+	public String convertToUrl(String productCode, String uncPath)
 	{
 		if (StringUtils.isBlank(uncPath))
 		{
@@ -96,40 +105,97 @@ public class ImagePathConverter
 			return "";
 		}
 
+		// Check cache first
+		var cacheKey = buildCacheKey(productCode, filename);
+		var cachedUrl = cache.get(cacheKey);
+		if (cachedUrl != null)
+		{
+			LOG.debug("Cache hit for {}", cacheKey);
+			return cachedUrl;
+		}
+
 		// Try original filename first
 		var originalUrl = httpBaseUrl + filename;
 		if (imageExists(originalUrl))
 		{
+			cache.put(cacheKey, originalUrl);
 			return originalUrl;
 		}
 
-		// Try uppercase filename
-		var uppercaseFilename = filename.toUpperCase(Locale.ROOT);
-		if (!uppercaseFilename.equals(filename))
+		// Generate and try all case combinations
+		var caseCombinations = generateCaseCombinations(filename);
+		for (var variant : caseCombinations)
 		{
-			var uppercaseUrl = httpBaseUrl + uppercaseFilename;
-			if (imageExists(uppercaseUrl))
+			if (variant.equals(filename))
 			{
-				LOG.debug("Image found with uppercase filename: {}", uppercaseFilename);
-				return uppercaseUrl;
+				continue; // Already tried original
 			}
-		}
-
-		// Try lowercase filename
-		var lowercaseFilename = filename.toLowerCase(Locale.ROOT);
-		if (!lowercaseFilename.equals(filename))
-		{
-			var lowercaseUrl = httpBaseUrl + lowercaseFilename;
-			if (imageExists(lowercaseUrl))
+			var variantUrl = httpBaseUrl + variant;
+			if (imageExists(variantUrl))
 			{
-				LOG.debug("Image found with lowercase filename: {}", lowercaseFilename);
-				return lowercaseUrl;
+				LOG.debug("Image found with case variant: {}", variant);
+				cache.put(cacheKey, variantUrl);
+				return variantUrl;
 			}
 		}
 
 		// Return original URL even if not found (Playwright will handle missing images)
-		LOG.warn("Image not found at any case variant: {}", filename);
+		LOG.warn("Image not found at any case variant: {} (tried {} combinations)", filename, caseCombinations.size());
 		return originalUrl;
+	}
+
+	/**
+	 * Generates all possible letter case combinations of the given string.
+	 *
+	 * <p>
+	 * For each letter character, both uppercase and lowercase variants are included. Non-letter
+	 * characters remain unchanged.
+	 *
+	 * @param input
+	 *            the input string
+	 * @return list of all case combinations
+	 */
+	private List<String> generateCaseCombinations(String input)
+	{
+		List<String> results = new ArrayList<>();
+		generateCaseCombinationsRecursive(input.toCharArray(), 0, results);
+		return results;
+	}
+
+	/**
+	 * Recursively generates all case combinations by branching at each letter character.
+	 *
+	 * @param chars
+	 *            the character array being modified
+	 * @param index
+	 *            current position in the array
+	 * @param results
+	 *            accumulator for generated combinations
+	 */
+	private void generateCaseCombinationsRecursive(char[] chars, int index, List<String> results)
+	{
+		if (index == chars.length)
+		{
+			results.add(new String(chars));
+			return;
+		}
+
+		char c = chars[index];
+		if (Character.isLetter(c))
+		{
+			// Try lowercase variant
+			chars[index] = Character.toLowerCase(c);
+			generateCaseCombinationsRecursive(chars, index + 1, results);
+
+			// Try uppercase variant
+			chars[index] = Character.toUpperCase(c);
+			generateCaseCombinationsRecursive(chars, index + 1, results);
+		}
+		else
+		{
+			// Non-letter character, just continue
+			generateCaseCombinationsRecursive(chars, index + 1, results);
+		}
 	}
 
 	/**
@@ -184,5 +250,19 @@ public class ImagePathConverter
 
 		// No backslash found, return as-is
 		return uncPath;
+	}
+
+	/**
+	 * Builds a cache key from product code and filename.
+	 *
+	 * @param productCode
+	 *            the product code
+	 * @param filename
+	 *            the image filename
+	 * @return the cache key
+	 */
+	private String buildCacheKey(String productCode, String filename)
+	{
+		return productCode + "|" + filename;
 	}
 }

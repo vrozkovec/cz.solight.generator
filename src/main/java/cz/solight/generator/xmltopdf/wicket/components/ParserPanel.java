@@ -1,26 +1,28 @@
 package cz.solight.generator.xmltopdf.wicket.components;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.AjaxDownloadBehavior;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse.CacheScope;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.request.resource.SharedResourceReference;
 import org.apache.wicket.util.lang.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +54,7 @@ public class ParserPanel extends Panel
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LoggerFactory.getLogger(ParserPanel.class);
 	private static final String PDF_OUTPUT_DIR = "/data/tmp/";
+	private static final String PDF_RESOURCE_KEY = "inline-pdf-resource";
 
 	@Inject
 	private OfferXmlParser xmlOfferParser;
@@ -64,8 +67,8 @@ public class ParserPanel extends Panel
 	private Model<Boolean> showPriceVOCModel = Model.of(true);
 	private Model<Boolean> showPriceMOCModel = Model.of(true);
 	private Model<PdfLocale> localeModel = Model.of(PdfLocale.CZ);
-	private AjaxDownloadBehavior pdfDownload;
-	private String generatedPdfPath;
+	private WebMarkupContainer pdfPreviewContainer;
+	private WebMarkupContainer pdfFrame;
 
 	/**
 	 * Constructor for ParserPanel.
@@ -83,45 +86,19 @@ public class ParserPanel extends Panel
 	{
 		super.onInitialize();
 
-		// Create AjaxDownloadBehavior for inline PDF display in new tab
-		pdfDownload = new AjaxDownloadBehavior(new AbstractResource()
-		{
-			private static final long serialVersionUID = 1L;
+		// Register shared resource for serving PDF files (if not already registered)
+		registerPdfResource();
 
-			@Override
-			protected ResourceResponse newResourceResponse(Attributes attributes)
-			{
-				var file = new File(generatedPdfPath);
-				var response = new ResourceResponse();
-				response.setLastModified(Instant.now());
-				response.setCacheDuration(Duration.ZERO);
-				response.setCacheScope(CacheScope.PRIVATE);
-				response.setFileName(file.getName());
-				response.setContentDisposition(ContentDisposition.INLINE);
-				response.setContentType("application/pdf");
+		// Create PDF preview container (initially hidden)
+		pdfPreviewContainer = new WebMarkupContainer("pdfPreviewContainer");
+		pdfPreviewContainer.setOutputMarkupId(true);
+		pdfPreviewContainer.setOutputMarkupPlaceholderTag(true);
+		add(pdfPreviewContainer);
 
-				try
-				{
-					byte[] pdfData = FileUtils.readFileToByteArray(file);
-					response.setWriteCallback(new WriteCallback()
-					{
-						@Override
-						public void writeData(Attributes attributes)
-						{
-							attributes.getResponse().write(pdfData);
-						}
-					});
-				}
-				catch (IOException e)
-				{
-					LOG.error("Error reading PDF file for download", e);
-					response.setError(404);
-				}
-				return response;
-			}
-		}).setLocation(AjaxDownloadBehavior.Location.NewWindow);
-
-		add(pdfDownload);
+		// Create iframe for PDF display
+		pdfFrame = new WebMarkupContainer("pdfFrame");
+		pdfFrame.setOutputMarkupId(true);
+		pdfPreviewContainer.add(pdfFrame);
 
 		// Create upload form
 		var uploadForm = new Form<Void>("uploadForm");
@@ -268,14 +245,94 @@ public class ParserPanel extends Panel
 			LOG.info("PDF generated successfully: {}", outputPath);
 			info("PDF soubor byl úspěšně vygenerován");
 
-			// Store path and trigger inline display in new tab
-			generatedPdfPath = outputPath.toFile().getAbsolutePath();
-			pdfDownload.initiate(target);
+			// Build URL for the PDF using the shared resource
+			var params = new PageParameters();
+			params.add("file", pdfFileName);
+			var pdfUrl = RequestCycle.get()
+				.urlFor(new SharedResourceReference(ParserPanel.class, PDF_RESOURCE_KEY), params)
+				.toString();
+
+			// Update iframe src and show preview container
+			pdfFrame.add(AttributeModifier.replace("src", pdfUrl));
+			pdfPreviewContainer.add(AttributeModifier.replace("style", "display: block;"));
+
+			// Add components to AJAX target for refresh
+			target.add(pdfPreviewContainer);
 		}
 		catch (Exception e)
 		{
 			LOG.error("Error processing file", e);
 			error("Chyba při zpracování souboru: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Registers a shared resource for serving PDF files from the temp directory. The resource is
+	 * registered only once per application lifecycle.
+	 */
+	private void registerPdfResource()
+	{
+		var sharedResources = getApplication().getSharedResources();
+
+		// Check if resource is already registered
+		if (sharedResources.get(ParserPanel.class, PDF_RESOURCE_KEY, null, null, null, true) != null)
+		{
+			return;
+		}
+
+		// Register the PDF serving resource
+		sharedResources.add(ParserPanel.class, PDF_RESOURCE_KEY, null, null, null, new AbstractResource()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected ResourceResponse newResourceResponse(Attributes attributes)
+			{
+				var fileName = attributes.getParameters().get("file").toString();
+				var response = new ResourceResponse();
+
+				// Security: validate filename to prevent path traversal
+				if (fileName == null || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\"))
+				{
+					LOG.error("Invalid PDF filename requested: {}", fileName);
+					response.setError(400);
+					return response;
+				}
+
+				var file = new File(PDF_OUTPUT_DIR, fileName);
+				response.setCacheDuration(Duration.ZERO);
+				response.setCacheScope(CacheScope.PRIVATE);
+				response.setFileName(fileName);
+				response.setContentDisposition(ContentDisposition.INLINE);
+				response.setContentType("application/pdf");
+
+				if (!file.exists())
+				{
+					LOG.error("PDF file not found: {}", file.getAbsolutePath());
+					response.setError(404);
+					return response;
+				}
+
+				try
+				{
+					byte[] pdfData = FileUtils.readFileToByteArray(file);
+					response.setWriteCallback(new WriteCallback()
+					{
+						@Override
+						public void writeData(Attributes attributes)
+						{
+							attributes.getResponse().write(pdfData);
+						}
+					});
+				}
+				catch (Exception e)
+				{
+					LOG.error("Error reading PDF file", e);
+					response.setError(500);
+				}
+
+				return response;
+			}
+		});
 	}
 }

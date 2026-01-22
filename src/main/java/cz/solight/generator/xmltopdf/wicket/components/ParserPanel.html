@@ -23,50 +23,70 @@
 					</div>
 					<div class="card-body">
 
-						<!-- Upload form -->
 						<form wicket:id="uploadForm" class="mb-4">
-							<div class="form-group mb-3">
-								<label for="fileInput" class="form-label">Vyberte XML soubor:</label>
-								<input wicket:id="fileInput" type="file" class="form-control" id="fileInput" accept=".xml" />
-							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="row">
+										<!-- Upload form -->
+										<div class="form-group mb-3">
+											<label for="fileInput" class="form-label">Vyberte XML soubor:</label>
+											<input wicket:id="fileInput" type="file" class="form-control" id="fileInput" accept=".xml" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
 
-							<!-- Locale selection -->
-							<div class="card mb-3">
-								<div class="card-header">
-									<strong>Jazyková verze</strong>
-								</div>
-								<div class="card-body">
-									<div class="form-group">
-										<div wicket:id="locale"></div>
+									<!-- Locale selection -->
+									<div class="card mb-3">
+										<div class="card-header">
+											<strong>Jazyková verze</strong>
+										</div>
+										<div class="card-body">
+											<div class="form-group">
+												<div wicket:id="locale"></div>
+											</div>
+										</div>
 									</div>
+
+									<!-- Price display options -->
+									<div class="card mb-3">
+										<div class="card-header">
+											<strong>Zobrazení cen v PDF</strong>
+										</div>
+										<div class="card-body">
+											<div class="form-check mb-2">
+												<input wicket:id="showPriceMy" type="checkbox" class="form-check-input" id="showPriceMy" />
+												<label class="form-check-label" for="showPriceMy"> Zobrazit Vaši cenu </label>
+											</div>
+											<div class="form-check mb-2">
+												<input wicket:id="showPriceVOC" type="checkbox" class="form-check-input" id="showPriceVOC" />
+												<label class="form-check-label" for="showPriceVOC"> Zobrazit VOC </label>
+											</div>
+											<div class="form-check mb-2">
+												<input wicket:id="showPriceMOC" type="checkbox" class="form-check-input" id="showPriceMOC" />
+												<label class="form-check-label" for="showPriceMOC"> Zobrazit MOC </label>
+											</div>
+										</div>
+									</div>
+
 								</div>
 							</div>
-
-							<!-- Price display options -->
-							<div class="card mb-3">
-								<div class="card-header">
-									<strong>Zobrazení cen v PDF</strong>
-								</div>
-								<div class="card-body">
-									<div class="form-check mb-2">
-										<input wicket:id="showPriceMy" type="checkbox" class="form-check-input" id="showPriceMy" />
-										<label class="form-check-label" for="showPriceMy"> Zobrazit Vaši cenu </label>
-									</div>
-									<div class="form-check mb-2">
-										<input wicket:id="showPriceVOC" type="checkbox" class="form-check-input" id="showPriceVOC" />
-										<label class="form-check-label" for="showPriceVOC"> Zobrazit VOC </label>
-									</div>
-									<div class="form-check mb-2">
-										<input wicket:id="showPriceMOC" type="checkbox" class="form-check-input" id="showPriceMOC" />
-										<label class="form-check-label" for="showPriceMOC"> Zobrazit MOC </label>
-									</div>
-								</div>
-							</div>
-
 							<button wicket:id="uploadButton" type="submit" class="btn w-100 btn-outline-primary mt-3">
 								<i class="fas fa-file-pdf"></i> Vygenerovat PDF
 							</button>
 						</form>
+					</div>
+				</div>
+
+				<!-- PDF Preview (initially hidden) -->
+				<div wicket:id="pdfPreviewContainer" class="mt-4" style="display: none;">
+					<div class="card">
+						<div class="card-header text-bg-success">
+							<h5 class="m-0 p-0">Vygenerované PDF</h5>
+						</div>
+						<div class="card-body p-0">
+							<iframe wicket:id="pdfFrame" style="width: 100%; height: 800px; border: none;"></iframe>
+						</div>
 					</div>
 				</div>
 			</div>
