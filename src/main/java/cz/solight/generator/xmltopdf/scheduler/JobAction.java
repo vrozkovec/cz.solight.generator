@@ -19,8 +19,10 @@ package cz.solight.generator.xmltopdf.scheduler;
 import cz.solight.generator.xmltopdf.wicket.app.PdfGeneratorApplication;
 
 import name.berries.app.scheduler.BaseJobAction;
-
-final class JobAction extends BaseJobAction<PdfGeneratorApplication>
+/**
+ * @author vit
+ */
+public final class JobAction extends BaseJobAction<PdfGeneratorApplication>
 {
 	/**
 	 * @see name.berries.app.scheduler.BaseJobAction#onError(java.lang.Exception, java.lang.String,

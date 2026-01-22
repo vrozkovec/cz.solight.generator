@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<wicket:panel>
+	<div class="container mt-4">
+		<div class="row">
+			<div class="col-md-6 offset-md-3">
+				<div class="card">
+					<div class="card-header text-bg-dark">
+						<h3 class="m-0 p-0">Nahrávání produktových listů</h3>
+					</div>
+					<div class="card-body">
+
+						<!-- Password container (visible initially) -->
+						<div wicket:id="passwordContainer">
+							<form wicket:id="passwordForm">
+								<div class="form-group mb-3">
+									<label for="passwordField" class="form-label">Heslo pro přístup:</label>
+									<input wicket:id="passwordField" type="password" class="form-control" id="passwordField" placeholder="Zadejte heslo" />
+								</div>
+								<button wicket:id="submitButton" type="submit" class="btn btn-primary w-100">
+									<i class="fas fa-key"></i> Ověřit heslo
+								</button>
+							</form>
+						</div>
+
+						<!-- Action container (hidden initially) -->
+						<div wicket:id="actionContainer">
+							<div class="alert alert-success mb-3">
+								<i class="fas fa-check-circle"></i> Přístup povolen
+							</div>
+							<p class="text-muted mb-3">
+								Kliknutím na tlačítko níže spustíte proces nahrávání produktových listů.
+								Tato akce stáhne XML soubory z FTP, převede je na PDF a nahraje zpět.
+							</p>
+							<a wicket:id="uploadLink" class="btn btn-outline-success w-100">
+								<i class="fas fa-upload"></i> Spustit nahrávání produktových listů
+							</a>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</wicket:panel>
+</html>

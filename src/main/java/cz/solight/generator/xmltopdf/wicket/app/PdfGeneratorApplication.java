@@ -17,6 +17,7 @@ import com.google.inject.Injector;
 
 import cz.solight.generator.xmltopdf.scheduler.Scheduler;
 import cz.solight.generator.xmltopdf.wicket.pages.HomePage;
+import cz.solight.generator.xmltopdf.wicket.pages.ProductSheetUploadPage;
 
 import name.berries.app.guice.GuiceStaticHolder;
 
@@ -83,6 +84,13 @@ public class PdfGeneratorApplication extends WebApplication
 			new UrlResourceReference(Url.parse("https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js")));
 		Bootstrap.install(this, settings);
 		getHeaderResponseDecorators().add(response -> new JavaScriptFilteredIntoFooterHeaderResponse(response, "footer-container"));
+
+
+		/***************************************************
+		 * MOUNT
+		 ****************************************************/
+
+		mountPage("/nastaveni", ProductSheetUploadPage.class);
 	}
 
 	/**

@@ -58,7 +58,14 @@ public class JobOneTime extends WicketAppBoundJob<PdfGeneratorApplication>
 			uploadConvertedProductSheets(action);
 	}
 
-	static void uploadConvertedProductSheets(JobAction action)
+	/**
+	 * Executes the product sheet upload job: downloads XMLs from FTP, converts them to PDF, and
+	 * uploads back.
+	 *
+	 * @param action
+	 *            the job action for error handling and logging
+	 */
+	public static void uploadConvertedProductSheets(JobAction action)
 	{
 		action.accept("Download XMLs from FTP, convert to PDF, upload back", () -> {
 

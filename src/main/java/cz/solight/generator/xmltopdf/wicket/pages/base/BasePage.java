@@ -14,6 +14,7 @@ import org.apache.wicket.request.resource.ContextRelativeResourceReference;
 import org.apache.wicket.util.lang.Args;
 
 import cz.solight.generator.xmltopdf.wicket.pages.HomePage;
+import cz.solight.generator.xmltopdf.wicket.pages.ProductSheetUploadPage;
 
 import name.berries.wicket.components.AjaxContainer;
 
@@ -91,6 +92,7 @@ public class BasePage extends SetupPage
 			NavbarComponents.transform(Navbar.ComponentPosition.LEFT, navbarComponents.toArray(new Component[] { })));
 
 		navbarComponents.clear();
+		navbarComponents.add(new NavbarButton<ProductSheetUploadPage>(ProductSheetUploadPage.class, new Model<>("Nastavení")));
 		navbar.addComponents(
 			NavbarComponents.transform(Navbar.ComponentPosition.RIGHT, navbarComponents.toArray(new Component[] { })));
 
