@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -115,16 +116,38 @@ public class ProductSheetPdfGenerator
 	 * @param products
 	 *            the list of products to generate PDFs for
 	 * @param fileConsumer
+	 *            consumer for each generated PDF file
 	 * @throws Exception
 	 *             if PDF generation fails
 	 */
 	public void generateAllPdfs(List<ProductSheet> products, Consumer<File> fileConsumer) throws Exception
+	{
+		generateAllPdfs(products, fileConsumer, null);
+	}
+
+	/**
+	 * Generates PDF files for all products in both A4_SHORT and FULL_LENGTH formats,
+	 * with progress reporting.
+	 *
+	 * @param products
+	 *            the list of products to generate PDFs for
+	 * @param fileConsumer
+	 *            consumer for each generated PDF file
+	 * @param progressCallback
+	 *            callback receiving (currentIndex, productCode) after each product is processed,
+	 *            may be null
+	 * @throws Exception
+	 *             if PDF generation fails
+	 */
+	public void generateAllPdfs(List<ProductSheet> products, Consumer<File> fileConsumer,
+		BiConsumer<Integer, String> progressCallback) throws Exception
 	{
 		Path outputDir = Files.createTempDirectory("product-sheets-");
 		log.info("Generating PDFs via Gotenberg for {} products to {}", products.size(), outputDir);
 
 		int successCount = 0;
 		int failCount = 0;
+		int index = 0;
 
 		for (var product : products)
 		{
@@ -140,12 +163,24 @@ public class ProductSheetPdfGenerator
 				generatePdf(product, ProductSheetFormat.FULL_LENGTH, fullPath);
 				fileConsumer.accept(fullPath.toFile());
 				successCount++;
+
+				// Report progress after each product is processed
+				index++;
+				if (progressCallback != null)
+				{
+					progressCallback.accept(index, product.getCode());
+				}
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 				log.error("Failed to generate PDFs for product {}: {}", product.getCode(), e.getMessage());
 				failCount++;
+				index++;
+				if (progressCallback != null)
+				{
+					progressCallback.accept(index, product.getCode());
+				}
 			}
 		}
 

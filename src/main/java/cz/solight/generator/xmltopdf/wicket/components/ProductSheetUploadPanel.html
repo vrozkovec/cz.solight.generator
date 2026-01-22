@@ -6,7 +6,7 @@
 			<div class="col-md-6 offset-md-3">
 				<div class="card">
 					<div class="card-header text-bg-dark">
-						<h3 class="m-0 p-0">Nahrávání produktových listů</h3>
+						<h3 class="m-0 p-0">Konverze produktových listů na vyžádání</h3>
 					</div>
 					<div class="card-body">
 
@@ -29,12 +29,22 @@
 								<i class="fas fa-check-circle"></i> Přístup povolen
 							</div>
 							<p class="text-muted mb-3">
-								Kliknutím na tlačítko níže spustíte proces nahrávání produktových listů.
+								Kliknutím na tlačítko níže spustíte proces konverze produktových listů.
 								Tato akce stáhne XML soubory z FTP, převede je na PDF a nahraje zpět.
 							</p>
-							<a wicket:id="uploadLink" class="btn btn-outline-success w-100">
+							<a wicket:id="uploadLink" class="btn btn-outline-success w-100 mb-3">
 								<i class="fas fa-upload"></i> Spustit nahrávání produktových listů
 							</a>
+
+							<!-- Progress container (hidden initially, shown during upload) -->
+							<div wicket:id="progressContainer">
+								<div class="progress mb-2" style="height: 25px;">
+									<div wicket:id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+										 role="progressbar" style="width: 0%"
+										 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+								<p wicket:id="progressText" class="text-muted small text-center mb-0"></p>
+							</div>
 						</div>
 
 					</div>
