@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<title>Solight | $!product.name [$product.code]</title>
+<title>$pdfFilename</title>
 
 #parse( "font-styles.vm" )
 
@@ -152,7 +152,7 @@ body {
     margin: 55px 35px 0 35px;
     padding: 25px 35px;
 #if(!$isFullLength)
-    max-height: 510px;
+    max-height: 470px;
     overflow: hidden;
     position: relative;
 #end

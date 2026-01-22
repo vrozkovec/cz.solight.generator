@@ -170,6 +170,7 @@ public class ProductSheetPdfGenerator
 
 		// Build Velocity context
 		Map<String, Object> context = buildContext(product, format);
+		context.put("pdfFilename", outputPath.getFileName());
 
 		// Render templates
 		var mainHtml = renderVelocityTemplate(TEMPLATE_PATH, context);
