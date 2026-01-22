@@ -395,11 +395,15 @@ th {
     <a name="$product.anchorName"></a>
 
     <div class="product-layout">
+    
+    	#if($product.pictureUrl)
         <div class="product-layout-image-layout">
             <div class="product-layout-image-wrapper">
                 <img class="product-image" src="$product.pictureUrl"/>
             </div>
         </div>
+        #end
+        
         <div class="product-layout-summary-layout">
             <div class="product-layout-summary-wrapper">
                 <div class="product-summary-table-td-category-kod-wrapper">

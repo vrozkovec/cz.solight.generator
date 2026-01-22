@@ -34,20 +34,24 @@ public class Server extends JettyRunner
 	 */
 	public static void main(String[] args)
 	{
-		Server start = new Server();
+		Server server = new Server();
 
 		if (WicketAppUtil.localMode())
 		{
-			start.setWicketMode(RuntimeConfigurationType.DEVELOPMENT);
+			server.setWicketMode(RuntimeConfigurationType.DEVELOPMENT);
+		}
+		else
+		{
+			server.setWicketMode(RuntimeConfigurationType.DEPLOYMENT);
 		}
 
-		start.start();
+		server.start();
 	}
 
 	@Override
 	public String getSessionSchemaTableName()
 	{
-		return "org_kusalainstitute_surveys";
+		return "cz_solight_generator";
 	}
 
 	@Override

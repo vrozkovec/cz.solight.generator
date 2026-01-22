@@ -16,11 +16,13 @@
  */
 package cz.solight.generator.xmltopdf.service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,8 +37,7 @@ import name.berries.wicket.util.app.AppConfigProvider.ConfigKey;
  * "\\webserver\storecards\1D31A.jpg" to HTTP URLs.
  *
  * <p>
- * If the image is not found at the original URL, the converter will try all possible letter case
- * combinations until the image is found.
+ * Uses a server-side file finder endpoint to handle case-insensitive image lookups.
  */
 public class ImagePathConverter
 {
@@ -44,6 +45,7 @@ public class ImagePathConverter
 	private static final String DEFAULT_UNC_PREFIX = "\\\\webserver\\storecards\\";
 	private static final String DEFAULT_HTTP_BASE_URL = AppConfigProvider.getDefaultConfiguration()
 		.getString(ConfigKey.APP_BASE_IMAGES_URL) + "/obrazky/";
+	private static final String FILE_FINDER_URL = AppConfigProvider.getDefaultConfiguration().getString("files.finderUrl");
 	private static final int CONNECTION_TIMEOUT_MS = 3000;
 
 	private final String uncPrefix;
@@ -73,36 +75,33 @@ public class ImagePathConverter
 	}
 
 	/**
-	 * Converts a UNC path to an HTTP URL, trying all letter case combinations if the original is
-	 * not found.
+	 * Converts a UNC path to an HTTP URL using a server-side file finder endpoint.
 	 *
 	 * <p>
 	 * Example: "\\webserver\storecards\1D31A.jpg" -&gt;
 	 * "https://generator.solight.cz/obrazky/1D31A.jpg"
 	 *
 	 * <p>
-	 * If the image is not found, tries all possible letter case combinations (e.g., for "Ab.jpg":
-	 * "Ab.jpg", "AB.jpg", "ab.jpg", "aB.jpg", "Ab.JPG", etc.) until a working URL is found.
+	 * Uses the fileFinder.php endpoint to handle case-insensitive lookups on the server side.
 	 *
 	 * @param productCode
 	 *            code of the product
 	 * @param uncPath
 	 *            the UNC path from the XML
-	 * @param picturePath
-	 * @return the HTTP URL for the image (with working case variant if found)
+	 * @return the HTTP URL for the image, or null if not found
 	 */
 	public String convertToUrl(String productCode, String uncPath)
 	{
 		if (StringUtils.isBlank(uncPath))
 		{
-			return "";
+			return null;
 		}
 
 		// Extract filename from UNC path
 		var filename = extractFilename(uncPath);
 		if (StringUtils.isBlank(filename))
 		{
-			return "";
+			return null;
 		}
 
 		// Check cache first
@@ -114,115 +113,59 @@ public class ImagePathConverter
 			return cachedUrl;
 		}
 
-		// Try original filename first
-		var originalUrl = httpBaseUrl + filename;
-		if (imageExists(originalUrl))
+		// Use server-side file finder for case-insensitive lookup
+		var foundUrl = findImageUrl(filename);
+		if (foundUrl != null)
 		{
-			cache.put(cacheKey, originalUrl);
-			return originalUrl;
+			LOG.debug("Image found via fileFinder: {}", foundUrl);
+			cache.put(cacheKey, foundUrl);
+			return foundUrl;
 		}
 
-		// Generate and try all case combinations
-		var caseCombinations = generateCaseCombinations(filename);
-		for (var variant : caseCombinations)
-		{
-			if (variant.equals(filename))
-			{
-				continue; // Already tried original
-			}
-			var variantUrl = httpBaseUrl + variant;
-			if (imageExists(variantUrl))
-			{
-				LOG.debug("Image found with case variant: {}", variant);
-				cache.put(cacheKey, variantUrl);
-				return variantUrl;
-			}
-		}
-
-		// Return original URL even if not found (Playwright will handle missing images)
-		LOG.warn("Image not found at any case variant: {} (tried {} combinations)", filename, caseCombinations.size());
-		return originalUrl;
+		LOG.warn("Image not found: {}", filename);
+		return null;
 	}
 
 	/**
-	 * Generates all possible letter case combinations of the given string.
+	 * Finds an image URL using the server-side file finder endpoint.
 	 *
 	 * <p>
-	 * For each letter character, both uppercase and lowercase variants are included. Non-letter
-	 * characters remain unchanged.
+	 * Makes a GET request to the fileFinder.php endpoint which performs case-insensitive file
+	 * lookup on the server side.
 	 *
-	 * @param input
-	 *            the input string
-	 * @return list of all case combinations
+	 * @param filename
+	 *            the image filename to find
+	 * @return the full image URL if found, or null if not found or on error
 	 */
-	private List<String> generateCaseCombinations(String input)
-	{
-		List<String> results = new ArrayList<>();
-		generateCaseCombinationsRecursive(input.toCharArray(), 0, results);
-		return results;
-	}
-
-	/**
-	 * Recursively generates all case combinations by branching at each letter character.
-	 *
-	 * @param chars
-	 *            the character array being modified
-	 * @param index
-	 *            current position in the array
-	 * @param results
-	 *            accumulator for generated combinations
-	 */
-	private void generateCaseCombinationsRecursive(char[] chars, int index, List<String> results)
-	{
-		if (index == chars.length)
-		{
-			results.add(new String(chars));
-			return;
-		}
-
-		char c = chars[index];
-		if (Character.isLetter(c))
-		{
-			// Try lowercase variant
-			chars[index] = Character.toLowerCase(c);
-			generateCaseCombinationsRecursive(chars, index + 1, results);
-
-			// Try uppercase variant
-			chars[index] = Character.toUpperCase(c);
-			generateCaseCombinationsRecursive(chars, index + 1, results);
-		}
-		else
-		{
-			// Non-letter character, just continue
-			generateCaseCombinationsRecursive(chars, index + 1, results);
-		}
-	}
-
-	/**
-	 * Checks if an image exists at the given URL using a HEAD request.
-	 *
-	 * @param url
-	 *            the URL to check
-	 * @return true if the image exists (HTTP 200), false otherwise
-	 */
-	private boolean imageExists(String url)
+	private String findImageUrl(String filename)
 	{
 		try
 		{
+			var url = FILE_FINDER_URL + URLEncoder.encode(filename, StandardCharsets.UTF_8.toString());
 			var connection = (HttpURLConnection)URI.create(url).toURL().openConnection();
-			connection.setRequestMethod("HEAD");
+			connection.setRequestMethod("GET");
 			connection.setConnectTimeout(CONNECTION_TIMEOUT_MS);
 			connection.setReadTimeout(CONNECTION_TIMEOUT_MS);
 
 			int responseCode = connection.getResponseCode();
-			connection.disconnect();
+			if (responseCode == HttpURLConnection.HTTP_OK)
+			{
+				try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
+				{
+					var responseBody = reader.readLine();
+					connection.disconnect();
+					return responseBody;
+				}
+			}
 
-			return responseCode == HttpURLConnection.HTTP_OK;
+			connection.disconnect();
+			return null;
 		}
 		catch (Exception e)
 		{
-			LOG.debug("Error checking image existence at {}: {}", url, e.getMessage());
-			return false;
+			e.printStackTrace();
+			LOG.debug("Error finding image via fileFinder for {}: {}", filename, e.getMessage());
+			return null;
 		}
 	}
 

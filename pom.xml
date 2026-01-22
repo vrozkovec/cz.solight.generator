@@ -54,7 +54,6 @@
 		<guice.version>7.0.0</guice.version>
 		<wicket-bootstrap.version>7.0.14</wicket-bootstrap.version>
 		<jakarta.activation.api.version>2.1.4</jakarta.activation.api.version>
-		<projectLibrariesDir>org.kusalainstitute.surveys-master</projectLibrariesDir>
 		<commons-rng-version>1.6</commons-rng-version>
 		<apache.poi.version>5.5.1</apache.poi.version>
 		<slf4j-api.version>2.0.17</slf4j-api.version>

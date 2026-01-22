@@ -25,6 +25,7 @@ files:
    # files from public folder are accessible under this address
    # this domain has also nginx image resizer filter enabled
    domain: http://files.generator.solight.cz/
+   finderUrl: "https://obrazky.generator.solight.cz/fileFinder.php?image="
    
 sftp:
    host: ftp.solight.cz

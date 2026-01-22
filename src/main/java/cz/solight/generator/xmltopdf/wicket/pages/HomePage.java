@@ -25,25 +25,35 @@ public class HomePage extends BasePage
 		return new ParserPanel(id);
 	}
 
-	// @Override
-	// protected void onInitialize()
-	// {
-	// super.onInitialize();
-	// var parsed = getInstance(ProductSheetXmlParser.class)
-	// .parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
-	// try
-	// {
-	// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
-	// ProductSheetFormat.A4_SHORT,
-	// Path.of("/data/tmp/psa4.pdf"));
-	// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
-	// ProductSheetFormat.FULL_LENGTH,
-	// Path.of("/data/tmp/psfull.pdf"));
-	// }
-	// catch (Exception e)
-	// {
-	// throw new RuntimeException(e);
-	// }
-	//
-	// }
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+
+		// JobAction action = new JobAction();
+		// // if (!WicketAppUtil.localMode())
+		// JobOneTime.uploadConvertedProductSheets(action);
+
+
+		// var parsed = getInstance(ProductSheetXmlParser.class)
+		// .parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
+		// try
+		// {
+		//
+		// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
+		// ProductSheetFormat.A4_SHORT,
+		// Path.of("/data/tmp/" +
+		// ProductSheetFormat.A4_SHORT.buildFilename(parsed.get(0).getCode())));
+		//
+		// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
+		// ProductSheetFormat.FULL_LENGTH,
+		// Path.of("/data/tmp/" +
+		// ProductSheetFormat.FULL_LENGTH.buildFilename(parsed.get(0).getCode())));
+		// }
+		// catch (Exception e)
+		// {
+		// throw new RuntimeException(e);
+		// }
+
+	}
 }
