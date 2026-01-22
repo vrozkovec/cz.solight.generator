@@ -140,7 +140,6 @@ public class ParserPanel extends Panel
 		fileInputConfig.put(new Key<>("browseOnZoneClick"), true);
 		fileInputConfig.withDropZoneEnabled(true);
 
-
 		uploadForm.add(fileUploadField);
 
 		uploadForm.add(new ButtonGroup("locale")
