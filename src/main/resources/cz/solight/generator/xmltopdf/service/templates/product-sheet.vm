@@ -40,6 +40,14 @@ html, body {
     flex-direction: column;
     height: calc(297mm - 200px);
 }
+
+.description-wrapper {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
 #end
 
 * {
@@ -163,7 +171,6 @@ body {
     margin: 35px 35px 0 35px;
     padding: 25px 35px;
 #if(!$isFullLength)
-    max-height: 350px;
     overflow: hidden;
 #end
 }
@@ -288,6 +295,9 @@ body {
     </div>
 
     <!-- Description Section -->
+#if(!$isFullLength)
+    <div class="description-wrapper">
+#end
     <div class="description-section">
         <div class="description-title">$!product.brandName</div>
         <div class="description-content">
@@ -303,6 +313,9 @@ body {
             KOMPLETNÍ POPIS
         </a>
     </div>
+#if(!$isFullLength)
+    </div>
+#end
 </div>
 
 </body>
