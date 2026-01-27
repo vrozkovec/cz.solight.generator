@@ -70,7 +70,7 @@ for ($i = 0; $i < strlen($requested); $i++) {
         $letterCount++;
     }
 }
-if ($letterCount > 15) {
+if ($letterCount > 50) {
     http_response_code(400);
     exit('Filename too long for case search');
 }
