@@ -1,9 +1,19 @@
 package cz.solight.generator.xmltopdf.wicket.pages;
 
+import static name.berries.app.guice.GuiceStaticHolder.getInstance;
+
+import java.nio.file.Path;
+
 import org.apache.wicket.Component;
 
+import cz.solight.generator.xmltopdf.pojo.ProductSheet;
+import cz.solight.generator.xmltopdf.pojo.ProductSheetFormat;
+import cz.solight.generator.xmltopdf.service.ProductSheetPdfGenerator;
+import cz.solight.generator.xmltopdf.service.ProductSheetXmlParser;
 import cz.solight.generator.xmltopdf.wicket.components.ParserPanel;
 import cz.solight.generator.xmltopdf.wicket.pages.base.BasePage;
+
+import name.berries.wicket.util.app.WicketAppUtil;
 
 /**
  * Home page with navigation links to all available pages.
@@ -35,25 +45,28 @@ public class HomePage extends BasePage
 		// JobOneTime.uploadConvertedProductSheets(action);
 
 
-		// var parsed = getInstance(ProductSheetXmlParser.class)
-		// .parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
-		// try
-		// {
-		//
-		// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
-		// ProductSheetFormat.A4_SHORT,
-		// Path.of("/data/tmp/" +
-		// ProductSheetFormat.A4_SHORT.buildFilename(parsed.get(0).getCode())));
-		//
-		// getInstance(ProductSheetPdfGenerator.class).generatePdf(parsed.get(0),
-		// ProductSheetFormat.FULL_LENGTH,
-		// Path.of("/data/tmp/" +
-		// ProductSheetFormat.FULL_LENGTH.buildFilename(parsed.get(0).getCode())));
-		// }
-		// catch (Exception e)
-		// {
-		// throw new RuntimeException(e);
-		// }
+		if (WicketAppUtil.localMode())
+		{
+			var parsed = getInstance(ProductSheetXmlParser.class)
+				.parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
+			try
+			{
+				for (ProductSheet productSheet : parsed)
+				{
+					getInstance(ProductSheetPdfGenerator.class).generatePdf(productSheet, ProductSheetFormat.A4_SHORT,
+						Path.of("/data/tmp/ps/" + ProductSheetFormat.A4_SHORT.buildFilename(productSheet.getCode())));
+
+					getInstance(ProductSheetPdfGenerator.class).generatePdf(productSheet, ProductSheetFormat.FULL_LENGTH,
+						Path.of("/data/tmp/ps/" + ProductSheetFormat.FULL_LENGTH.buildFilename(productSheet.getCode())));
+
+					break;
+				}
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
 
 	}
 }
