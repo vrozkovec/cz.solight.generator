@@ -126,8 +126,8 @@ public class ProductSheetPdfGenerator
 	}
 
 	/**
-	 * Generates PDF files for all products in both A4_SHORT and FULL_LENGTH formats,
-	 * with progress reporting.
+	 * Generates PDF files for all products in both A4_SHORT and FULL_LENGTH formats, with progress
+	 * reporting.
 	 *
 	 * @param products
 	 *            the list of products to generate PDFs for
@@ -277,7 +277,8 @@ public class ProductSheetPdfGenerator
 			.field("files", new ByteArrayInputStream(headerHtml.getBytes(StandardCharsets.UTF_8)), "header.html")
 			.field("files", new ByteArrayInputStream(footerHtml.getBytes(StandardCharsets.UTF_8)), "footer.html")
 			.field("preferCssPageSize", "true").field("printBackground", "true").field("marginTop", HEADER_MARGIN)
-			.field("marginBottom", FOOTER_MARGIN).field("marginLeft", "0").field("marginRight", "0");
+			.field("marginBottom", FOOTER_MARGIN).field("marginLeft", "0").field("marginRight", "0")
+			.field("waitForExpression", "window.pdfReady === true");
 
 		HttpResponse<byte[]> response = request.asBytes();
 
@@ -360,7 +361,7 @@ public class ProductSheetPdfGenerator
 			.field("paperWidth", String.valueOf(A4_WIDTH_INCHES)).field("paperHeight", String.valueOf(totalHeightInches))
 			.field("marginTop", HEADER_MARGIN).field("marginBottom", FOOTER_MARGIN).field("marginLeft", "0")
 			.field("marginRight", "0").field("printBackground", "true").field("preferCssPageSize", "false").field("scale", "1")
-			.asBytes();
+			.field("waitForExpression", "window.pdfReady === true").asBytes();
 
 		if (!response.isSuccess())
 		{

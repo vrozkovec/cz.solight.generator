@@ -191,7 +191,8 @@ public class OfferPdfGenerator
 			.field("files", new ByteArrayInputStream(headerHtml.getBytes(StandardCharsets.UTF_8)), "header.html")
 			.field("files", new ByteArrayInputStream(footerHtml.getBytes(StandardCharsets.UTF_8)), "footer.html")
 			.field("preferCssPageSize", "true").field("printBackground", "true").field("marginTop", HEADER_MARGIN)
-			.field("marginBottom", FOOTER_MARGIN).field("marginLeft", "0").field("marginRight", "0").asBytes();
+			.field("marginBottom", FOOTER_MARGIN).field("marginLeft", "0").field("marginRight", "0")
+			.field("waitForExpression", "window.pdfReady === true").asBytes();
 
 		if (!response.isSuccess())
 		{

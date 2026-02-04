@@ -489,5 +489,51 @@ th {
 </div>
 #end
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Double RAF + setTimeout ensures layout is fully settled before measuring
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            setTimeout(function() {
+                var productDetails = document.querySelectorAll('.product-detail');
+
+                productDetails.forEach(function(detail) {
+                    // Force synchronous reflow before measuring
+                    void detail.offsetHeight;
+
+                    var maxBottom = detail.getBoundingClientRect().top + detail.clientHeight;
+
+                    function trimOverflow(parent, maxBottom) {
+                        var children = parent.children;
+                        for (var i = 0; i < children.length; i++) {
+                            var el = children[i];
+                            var rect = el.getBoundingClientRect();
+
+                            if (rect.bottom > maxBottom) {
+                                if ((el.tagName === 'UL' || el.tagName === 'OL') && rect.top < maxBottom) {
+                                    trimOverflow(el, maxBottom);
+                                } else {
+                                    for (var j = i; j < children.length; j++) {
+                                        children[j].style.display = 'none';
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    var content = detail.querySelector('.product-description');
+                    if (content) {
+                        trimOverflow(content, maxBottom);
+                    }
+                });
+
+                // Signal to Gotenberg that PDF is ready to render
+                window.pdfReady = true;
+            }, 150);
+        });
+    });
+});
+</script>
 </body>
 </html>

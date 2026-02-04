@@ -167,10 +167,11 @@ body {
 /* Description Section */
 .description-section {
     background-color: #EDEFF0;
-    border-radius: 12px 12px 0 0;
+    border-radius: 12px;
     margin: 35px 35px 0 35px;
     padding: 25px 35px;
 #if(!$isFullLength)
+    flex: 1 1 auto;
     overflow: hidden;
 #end
 }
@@ -304,8 +305,6 @@ body {
             $!product.description
         </div>
     </div>
-    <div class="description-section-bottom">
-    </div>
 
     <!-- Full Description Button (Short Version Only) -->
     <div class="full-description-wrapper">
@@ -317,6 +316,62 @@ body {
     </div>
 #end
 </div>
+
+#if($isFullLength)
+<script>window.pdfReady = true;</script>
+#else
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Double RAF + setTimeout ensures layout is fully settled before measuring
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            setTimeout(function() {
+                var wrapper = document.querySelector('.description-wrapper');
+                if (!wrapper) {
+                    window.pdfReady = true;
+                    return;
+                }
+
+                var section = document.querySelector('.description-section');
+                // Force synchronous reflow before measuring
+                void section.offsetHeight;
+
+                var sectionRect = section.getBoundingClientRect();
+                var sectionPaddingBottom = 25; // from CSS: padding: 25px 35px
+                var maxBottom = sectionRect.bottom - sectionPaddingBottom;
+
+                function trimOverflow(parent, maxBottom) {
+                    var children = parent.children;
+                    for (var i = 0; i < children.length; i++) {
+                        var el = children[i];
+                        var rect = el.getBoundingClientRect();
+
+                        if (rect.bottom > maxBottom) {
+                            if ((el.tagName === 'UL' || el.tagName === 'OL') && rect.top < maxBottom) {
+                                trimOverflow(el, maxBottom);
+                            } else {
+                                for (var j = i; j < children.length; j++) {
+                                    children[j].style.display = 'none';
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                var content = document.querySelector('.description-content');
+                trimOverflow(content, maxBottom);
+
+                section.style.overflow = 'hidden';
+
+                // Signal to Gotenberg that PDF is ready to render
+                window.pdfReady = true;
+            }, 1000);
+        });
+    });
+});
+</script>
+#end
 
 </body>
 </html>
