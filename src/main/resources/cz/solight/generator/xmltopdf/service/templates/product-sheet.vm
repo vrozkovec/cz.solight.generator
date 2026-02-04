@@ -171,7 +171,6 @@ body {
     margin: 35px 35px 0 35px;
     padding: 25px 35px;
 #if(!$isFullLength)
-    flex: 1 1 auto;
     overflow: hidden;
 #end
 }
