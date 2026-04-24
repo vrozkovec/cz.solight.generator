@@ -45,28 +45,28 @@ public class HomePage extends BasePage
 		// JobOneTime.uploadConvertedProductSheets(action);
 
 
-		if (WicketAppUtil.localMode())
-		{
-			var parsed = getInstance(ProductSheetXmlParser.class)
-				.parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
-			try
-			{
-				for (ProductSheet productSheet : parsed)
-				{
-					getInstance(ProductSheetPdfGenerator.class).generatePdf(productSheet, ProductSheetFormat.A4_SHORT,
-						Path.of("/data/tmp/ps/" + ProductSheetFormat.A4_SHORT.buildFilename(productSheet.getCode())));
-
-					getInstance(ProductSheetPdfGenerator.class).generatePdf(productSheet, ProductSheetFormat.FULL_LENGTH,
-						Path.of("/data/tmp/ps/" + ProductSheetFormat.FULL_LENGTH.buildFilename(productSheet.getCode())));
-
-					break;
-				}
-			}
-			catch (Exception e)
-			{
-				throw new RuntimeException(e);
-			}
-		}
+//		if (WicketAppUtil.localMode())
+//		{
+//			var parsed = getInstance(ProductSheetXmlParser.class)
+//				.parse(ProductSheetXmlParser.class.getResourceAsStream("templates/produktove_listy_test.xml"));
+//			try
+//			{
+//				for (ProductSheet productSheet : parsed)
+//				{
+//					getInstance(ProductSheetPdfGenerator.class).generatePdf(productSheet, ProductSheetFormat.A4_SHORT,
+//						Path.of("/data/tmp/ps/" + ProductSheetFormat.A4_SHORT.buildFilename(productSheet.getCode())));
+//
+//					getInstance(ProductSheetPdfGenerator.class).generatePdf(productSheet, ProductSheetFormat.FULL_LENGTH,
+//						Path.of("/data/tmp/ps/" + ProductSheetFormat.FULL_LENGTH.buildFilename(productSheet.getCode())));
+//
+//					break;
+//				}
+//			}
+//			catch (Exception e)
+//			{
+//				throw new RuntimeException(e);
+//			}
+//		}
 
 	}
 }

@@ -316,6 +316,18 @@ th {
 .page-break {
     page-break-before: always;
 }
+
+.product-barcode-wrapper {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.product-barcode-wrapper img {
+    max-width: 250px;
+    width: auto;
+    height: auto;
+    max-height: 25px;
+}
 </style>
 
 </head>
@@ -406,7 +418,12 @@ th {
         #end
         
         <div class="product-layout-summary-layout">
-            <div class="product-layout-summary-wrapper">
+            <div class="product-layout-summary-wrapper" style="position: relative; top: -25px;">
+#if($product.eanBarcodeBase64 && $product.eanBarcodeBase64 != "")
+                <div class="product-barcode-wrapper">
+                    <img src="$product.eanBarcodeBase64" alt="EAN: $!product.ean"/>
+                </div>
+#end
                 <div class="product-summary-table-td-category-kod-wrapper">
                     <div class="product-summary-table-td-category-kod">
                         $product.code

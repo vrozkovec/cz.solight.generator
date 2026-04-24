@@ -46,6 +46,7 @@ public class ProductRow implements Serializable
 	private String category;
 	private String pictureUrl;
 	private String ean;
+	private String eanBarcodeBase64;
 	private String description;
 	private ProductPrice price;
 	private BigDecimal unitPrice;
@@ -195,6 +196,27 @@ public class ProductRow implements Serializable
 	public void setEan(String ean)
 	{
 		this.ean = ean;
+	}
+
+	/**
+	 * Gets the EAN barcode as a base64 data URL for embedding in HTML.
+	 *
+	 * @return the base64 data URL of the barcode image, or null if not generated
+	 */
+	public String getEanBarcodeBase64()
+	{
+		return eanBarcodeBase64;
+	}
+
+	/**
+	 * Sets the EAN barcode as a base64 data URL.
+	 *
+	 * @param eanBarcodeBase64
+	 *            the base64 data URL of the barcode image
+	 */
+	public void setEanBarcodeBase64(String eanBarcodeBase64)
+	{
+		this.eanBarcodeBase64 = eanBarcodeBase64;
 	}
 
 	/**

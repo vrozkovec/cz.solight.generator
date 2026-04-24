@@ -16,6 +16,8 @@
  */
 package cz.solight.generator.xmltopdf.util;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
@@ -23,8 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.imageio.ImageIO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
 
 import cz.solight.generator.xmltopdf.service.OfferPdfGenerator;
 
@@ -144,6 +152,80 @@ public class ContextUtil
 		{
 			log.error("Failed to load font: {}", fileName, e);
 			return null;
+		}
+	}
+
+	/**
+	 * Generates an EAN barcode image and returns it as a base64 data URL. Supports EAN-13 (13
+	 * digits) and EAN-8 (8 digits).
+	 *
+	 * @param ean
+	 *            the EAN code string
+	 * @return base64 data URL string, or empty string if generation fails
+	 */
+	public static String generateEanBarcodeBase64(String ean)
+	{
+		if (ean == null || ean.isBlank())
+		{
+			return "";
+		}
+
+		var trimmed = ean.trim();
+
+		try
+		{
+			BarcodeFormat format;
+			if (trimmed.length() == 13)
+			{
+				format = BarcodeFormat.EAN_13;
+			}
+			else if (trimmed.length() == 8)
+			{
+				format = BarcodeFormat.EAN_8;
+			}
+			else
+			{
+				log.warn("Unsupported EAN length {}: '{}'", trimmed.length(), trimmed);
+				return "";
+			}
+
+			var bitMatrix = new MultiFormatWriter().encode(trimmed, format, 250, 50);
+			BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+
+			// int barcodeWidth = 250;
+			// int barcodeHeight = 50;
+			// int textHeight = 18;
+			// int totalHeight = barcodeHeight + textHeight;
+			//
+			// var bitMatrix = new MultiFormatWriter().encode(trimmed, format, barcodeWidth,
+			// barcodeHeight);
+			// BufferedImage barcodeImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+			//
+			// var image = new BufferedImage(barcodeWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
+			// Graphics2D g = image.createGraphics();
+			// g.setColor(Color.WHITE);
+			// g.fillRect(0, 0, barcodeWidth, totalHeight);
+			// g.drawImage(barcodeImage, 0, 0, null);
+			//
+			// g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+			// RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			// g.setColor(Color.BLACK);
+			// g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+			// var fm = g.getFontMetrics();
+			// int textX = (barcodeWidth - fm.stringWidth(trimmed)) / 2;
+			// g.drawString(trimmed, textX, barcodeHeight + fm.getAscent());
+			// g.dispose();
+
+			var baos = new ByteArrayOutputStream();
+			ImageIO.write(image, "png", baos);
+			var base64 = Base64.getEncoder().encodeToString(baos.toByteArray());
+			return "data:image/png;base64," + base64;
+		}
+		catch (Exception e)
+		{
+			log.error("Failed to generate barcode for EAN: {}", trimmed, e);
+			return "";
 		}
 	}
 

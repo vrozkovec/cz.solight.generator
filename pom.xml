@@ -59,7 +59,6 @@
 		<slf4j-api.version>2.0.17</slf4j-api.version>
 		<zxing.version>3.5.4</zxing.version>
 		<jetty.version>11.0.26</jetty.version>
-		<zxing-version>3.5.3</zxing-version>
 		<hamcrest.version>3.0</hamcrest.version>
 		<surefire.version>3.5.4</surefire.version>
 		<asana.version>0.5.13</asana.version>
@@ -92,6 +91,18 @@
 	</properties>
 
 	<dependencies>
+
+		<!-- ZXing for QR code generation -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>${zxing.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>${zxing.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.konghq</groupId>
@@ -389,6 +400,7 @@
 					<artifactId>maven-enforcer-plugin</artifactId>
 					<version>3.6.2</version>
 				</plugin>
+				
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>

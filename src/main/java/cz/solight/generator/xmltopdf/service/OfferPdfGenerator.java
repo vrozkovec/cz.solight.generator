@@ -134,6 +134,15 @@ public class OfferPdfGenerator
 		context.put("firm", offer.getFirm());
 		context.put("products", offer.getProducts());
 
+		// Generate EAN barcode images for each product
+		for (var product : offer.getProducts())
+		{
+			if (StringUtils.isNotBlank(product.getEan()))
+			{
+				product.setEanBarcodeBase64(ContextUtil.generateEanBarcodeBase64(product.getEan()));
+			}
+		}
+
 		// Display options
 		context.put("options", options);
 		context.put("showPriceMy", options.isShowPriceMy());
