@@ -25,12 +25,12 @@ public enum ProductSheetFormat
 	 * Fixed A4 height with content cutoff and "KOMPLETNI POPIS" button. Uses standard A4 dimensions
 	 * (210mm x 297mm).
 	 */
-	A4_SHORT("A4", " Produktový list.pdf"),
+	A4_SHORT("A4", "_Produktový list.pdf"),
 	/**
 	 * Single continuous page with A4 width and tall height to fit all content. Uses 210mm width
 	 * (A4) and 3000mm height to accommodate long descriptions.
 	 */
-	FULL_LENGTH(null, " Produktový list full.pdf");
+	FULL_LENGTH(null, "_Produktový list full.pdf");
 
 	private final String pageFormat;
 	private final String fileSuffix;
