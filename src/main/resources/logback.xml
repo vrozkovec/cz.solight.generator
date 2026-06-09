@@ -2,7 +2,7 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} %highlight(%-5level) %magenta([%thread]) %yellow(%M \(%class{0}.java:%line\)) - %msg%throwable%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta([%thread]) %yellow(%M \(%class{0}.java:%line\)) - %msg%throwable%n</pattern>
         </encoder>
     </appender>
 
