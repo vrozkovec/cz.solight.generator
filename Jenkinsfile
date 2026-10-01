@@ -1,5 +1,15 @@
 def targetServer = 'latudio-app' 
 
+// master (production) is built and tested on every push but deployed only by the nightly build
+// inside the deployment window (when there are new commits), for an undeployed commit whose
+// message contains "*hotfix*", or when the build is started manually
+def plannedDeployment = env.BRANCH_NAME == 'main'
+def deploymentEnabledFrom = 19 // whole hour 0-23, inclusive
+def deploymentEnabledTo = 6 // whole hour 0-23, exclusive; the window may span midnight
+def deploymentTimeZone = 'Europe/Prague'
+
+
+
 pipeline {
     agent any
     options { 
@@ -36,7 +46,11 @@ pipeline {
             steps {
 				ansiColor('xterm') {
 					runAnsibleDeployment (
-						targetServer: targetServer
+						targetServer: targetServer,
+						plannedDeployment: plannedDeployment,
+						deploymentEnabledFrom: deploymentEnabledFrom,
+						deploymentEnabledTo: deploymentEnabledTo,
+						deploymentTimeZone: deploymentTimeZone
 					)
 				}	
             }
