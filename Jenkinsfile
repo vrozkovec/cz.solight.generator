@@ -1,6 +1,4 @@
 def targetServer = 'latudio-app' 
-def useProxy = false
-def proxyServer = 'TODO' 
 
 pipeline {
     agent any
@@ -38,9 +36,7 @@ pipeline {
             steps {
 				ansiColor('xterm') {
 					runAnsibleDeployment (
-						targetServer: targetServer,
-						useProxy: useProxy,
-						proxyServer: proxyServer
+						targetServer: targetServer
 					)
 				}	
             }
